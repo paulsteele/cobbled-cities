@@ -1,4 +1,4 @@
-﻿using fNbt;
+﻿using schematic_to_lost_cities.Schematic;
 
 namespace schematic_to_lost_cities;
 
@@ -8,7 +8,9 @@ public static class Program
 	// ReSharper disable once UnusedMember.Global
 	public static void Main()
 	{
-		var schematic = new Schematic.Schematic(new NbtFile("pokecenter.nbt"));
+		var pokecenter = new Schematic.Schematic("pokecenter.nbt");
+		var pokemart = new Schematic.Schematic("pokemart.nbt");
+		var palette = new ConsolidatedPalette(new[] { pokecenter, pokemart });
 		Console.WriteLine("test");
 	}
 }

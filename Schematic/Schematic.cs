@@ -5,10 +5,11 @@ namespace schematic_to_lost_cities.Schematic;
 public class Schematic
 {
 	public readonly NbtCompound[,,] Blocks;
-	private NbtCompound[] _palette;
+	public readonly NbtCompound[] Palette;
 	
-	public Schematic(NbtFile file)
+	public Schematic(string filePath)
 	{
+		var file = new NbtFile(filePath);
 		var size = file.RootTag.Get<NbtList>("size");
 		
 		var x = size.Get<NbtInt>(0).IntValue;
@@ -16,7 +17,7 @@ public class Schematic
 		var z = size.Get<NbtInt>(2).IntValue;
 
 		Blocks = new NbtCompound[y, x, z];
-		_palette = file.RootTag.Get<NbtList>("palette").ToArray<NbtCompound>();
+		Palette = file.RootTag.Get<NbtList>("palette").ToArray<NbtCompound>();
 		
 		var blocks = file.RootTag.Get<NbtList>("blocks");
 
@@ -34,7 +35,7 @@ public class Schematic
 
 			var state = compound.Get<NbtInt>("state").IntValue;
 
-			Blocks[blockY, blockX, blockZ] = _palette[state];
+			Blocks[blockY, blockX, blockZ] = Palette[state];
 		}
 	}
 }
