@@ -4,11 +4,13 @@ namespace schematic_to_lost_cities.Schematic;
 
 public class Schematic
 {
-	public readonly NbtCompound[,,] Blocks;
-	public readonly NbtCompound[] Palette;
+	public readonly int[,,] Blocks;
+	private string _name;
+	public NbtCompound[] Palette { get; private set; }
 	
 	public Schematic(string filePath)
 	{
+		_name = filePath;
 		var file = new NbtFile(filePath);
 		var size = file.RootTag.Get<NbtList>("size");
 		
@@ -16,7 +18,7 @@ public class Schematic
 		var y = size.Get<NbtInt>(1).IntValue;
 		var z = size.Get<NbtInt>(2).IntValue;
 
-		Blocks = new NbtCompound[y, x, z];
+		Blocks = new int[y, x, z];
 		Palette = file.RootTag.Get<NbtList>("palette").ToArray<NbtCompound>();
 		
 		var blocks = file.RootTag.Get<NbtList>("blocks");
@@ -35,7 +37,46 @@ public class Schematic
 
 			var state = compound.Get<NbtInt>("state").IntValue;
 
-			Blocks[blockY, blockX, blockZ] = Palette[state];
+			Blocks[blockY, blockX, blockZ] = state;
 		}
+	}
+
+	public void UpdateToUseConsolidatedPalette(ConsolidatedPalette consolidatedPalette)
+	{
+		var equalityChecker = new PaletteEquality();
+		for (var i = 0; i < Palette.Length; i++)
+		{
+			for (var j = 0; j < consolidatedPalette.Palette.Length; j++)
+			{
+				if (equalityChecker.Equals(Palette[i], consolidatedPalette.Palette[j]))
+				{
+					var replaced= ReplaceAllReferences(i, j);
+					Console.WriteLine($"{_name} - replaced {replaced} from id {i} to {j}");
+				}
+			}
+		}
+
+		Palette = consolidatedPalette.Palette;
+	}
+
+	private int ReplaceAllReferences(int oldVal, int newVal)
+	{
+		var replaces = 0;
+		for (var y = 0; y < Blocks.GetLength(0); y++)
+		{
+			for (var x = 0; x < Blocks.GetLength(1); x++)
+			{
+				for (var z = 9; z < Blocks.GetLength(2); z++)
+				{
+					if (Blocks[y, x, z] == oldVal)
+					{
+						Blocks[y, x, z] = newVal;
+						replaces++;
+					}
+				}
+			}
+		}
+
+		return replaces;
 	}
 }

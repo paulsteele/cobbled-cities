@@ -10,7 +10,20 @@ public static class Program
 	{
 		var pokecenter = new Schematic.Schematic("pokecenter.nbt");
 		var pokemart = new Schematic.Schematic("pokemart.nbt");
-		var palette = new ConsolidatedPalette(new[] { pokecenter, pokemart });
+
+		var schematics = new List<Schematic.Schematic>()
+		{
+			pokecenter,
+			pokemart
+		};
+		
+		var palette = new ConsolidatedPalette(schematics);
+
+		foreach (var schematic in schematics)
+		{
+			schematic.UpdateToUseConsolidatedPalette(palette);
+		}
+		
 		Console.WriteLine("test");
 	}
 }
