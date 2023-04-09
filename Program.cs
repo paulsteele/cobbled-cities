@@ -30,6 +30,8 @@ public static class Program
 		lostCitiesPalette.Populate(palette);
 
 		File.WriteAllText("output-palette.json",JsonConvert.SerializeObject(lostCitiesPalette, Formatting.Indented));
+
+		var parts = schematics.Select(s => new Part(s, lostCitiesPalette)).ToList();
 		
 		Console.WriteLine("done");
 	}
