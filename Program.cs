@@ -1,4 +1,6 @@
-﻿using schematic_to_lost_cities.Schematic;
+﻿using Newtonsoft.Json;
+using schematic_to_lost_cities.LostCities;
+using schematic_to_lost_cities.Schematic;
 
 namespace schematic_to_lost_cities;
 
@@ -23,7 +25,12 @@ public static class Program
 		{
 			schematic.UpdateToUseConsolidatedPalette(palette);
 		}
+
+		var lostCitiesPalette = new Palette();
+		lostCitiesPalette.Populate(palette);
+
+		File.WriteAllText("output-palette.json",JsonConvert.SerializeObject(lostCitiesPalette, Formatting.Indented));
 		
-		Console.WriteLine("test");
+		Console.WriteLine("done");
 	}
 }
