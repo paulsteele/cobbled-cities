@@ -36,6 +36,9 @@ public static class Program
 		style.SetBuildings(parts);
 		style.Serialize();
 
+		var world = new World();
+		world.Serialize();
+
 		foreach (var part in parts)
 		{
 			part.Serialize();
