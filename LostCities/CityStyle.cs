@@ -21,12 +21,12 @@ public class CityStyle
   
 	public void Serialize()
 	{
-		var paletteDir = "output/data/schematic-assets/lostcities/citystyles";
+		var paletteDir = "output/data/schematicassets/lostcities/citystyles";
 		if (!Directory.Exists(paletteDir))
 		{
 			Directory.CreateDirectory(paletteDir);
 		}
-		File.WriteAllText($"{paletteDir}/schematic-style.json", Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented));
+		File.WriteAllText($"{paletteDir}/schematicstyle.json", Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented));
 	}
 }
 

@@ -27,7 +27,7 @@ public class Palette
 			var item = consolidatedPalette.Palette[index];
 			Items.Add(index, new PaletteEntry
 			{
-				character = _currentChar++,
+				@char = _currentChar++,
 				block = item.Get<NbtString>("Name").Value
 			});
 		}
@@ -35,7 +35,7 @@ public class Palette
 
 	public char GetCharacter(int index)
 	{
-		return Items[index].character;
+		return Items[index].@char;
 	}
 
 	public void Serialize()
@@ -46,6 +46,6 @@ public class Palette
 			Directory.CreateDirectory(paletteDir);
 		}
 
-		File.WriteAllText($"{paletteDir}/schematic-palette.json", JsonConvert.SerializeObject(this, Formatting.Indented));
+		File.WriteAllText($"{paletteDir}/schematicpalette.json", JsonConvert.SerializeObject(this, Formatting.Indented));
 	}
 }

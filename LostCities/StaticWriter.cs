@@ -8,7 +8,7 @@ loaderVersion="[40,)"
 license="MIT"
 
 [[mods]]
-modId="schematic-lostcities"
+modId="schematic_lostcities"
 version="1.0"
 displayName="Schematic Lost Cities"
 description='''

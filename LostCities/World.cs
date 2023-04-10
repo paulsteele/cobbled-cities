@@ -83,18 +83,18 @@ public class World
     new CityStyles()
     {
       factor = 1,
-      citystyle = "schematic-assets:schematic-style"
+      citystyle = "schematicassets:schematicstyle"
     }
   };
   
 	public void Serialize()
 	{
-		var worldDir = "output/data/schematic-assets/lostcities/worldstyles";
+		var worldDir = "output/data/schematicassets/lostcities/worldstyles";
 		if (!Directory.Exists(worldDir))
 		{
 			Directory.CreateDirectory(worldDir);
 		}
-		File.WriteAllText($"{worldDir}/schematic-world.json", Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented, new JsonSerializerSettings()
+		File.WriteAllText($"{worldDir}/schematicworld.json", Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented, new JsonSerializerSettings()
     {
       NullValueHandling = NullValueHandling.Ignore
     }));

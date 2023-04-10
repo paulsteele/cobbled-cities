@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.IO.Compression;
+using Newtonsoft.Json;
 using schematic_to_lost_cities.LostCities;
 using schematic_to_lost_cities.Schematic;
 
@@ -45,6 +46,13 @@ public static class Program
 		{
 			part.Serialize();
 		}
+
+		var jarFile = "schematic-cities.jar";
+		if (File.Exists(jarFile))
+		{
+			File.Delete(jarFile);
+		}
+		ZipFile.CreateFromDirectory("output", jarFile);
 		
 		Console.WriteLine("done");
 	}

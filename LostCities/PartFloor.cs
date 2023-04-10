@@ -12,10 +12,10 @@ public class PartFloor
 	public static int SLICES_PER_FLOOR = 6;
 
 	[JsonPropertyName("xsize")] 
-	public int xSize = 16;
+	public int xsize = 16;
 
 	[JsonPropertyName("zsize")] 
-	public int zSize = 16;
+	public int zsize = 16;
 	
 	public PartFloor()
 	{
