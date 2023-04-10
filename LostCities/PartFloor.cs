@@ -1,6 +1,5 @@
 using System.Text;
 using System.Text.Json.Serialization;
-using fNbt;
 
 namespace schematic_to_lost_cities.LostCities;
 
@@ -12,6 +11,12 @@ public class PartFloor
 	[JsonIgnore]
 	public static int SLICES_PER_FLOOR = 6;
 
+	[JsonPropertyName("xsize")] 
+	public int xSize = 16;
+
+	[JsonPropertyName("zsize")] 
+	public int zSize = 16;
+	
 	public PartFloor()
 	{
 		slices = new string[SLICES_PER_FLOOR, 16];

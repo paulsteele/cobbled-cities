@@ -6,7 +6,7 @@ namespace schematic_to_lost_cities.LostCities;
 
 public class Palette
 {
-	[JsonPropertyName("palette")] public List<PaletteEntry> PaletteList => Items.Values.ToList();
+	[JsonPropertyName("palette")] public List<PaletteEntry> palette => Items.Values.ToList();
 	
 	[JsonIgnore]
 	private Dictionary<int, PaletteEntry> Items { get; }

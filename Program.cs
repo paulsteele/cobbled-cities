@@ -32,6 +32,14 @@ public static class Program
 		File.WriteAllText("output-palette.json",JsonConvert.SerializeObject(lostCitiesPalette, Formatting.Indented));
 
 		var parts = schematics.Select(s => new Part(s, lostCitiesPalette)).ToList();
+		var style = new CityStyle();
+		style.SetBuildings(parts);
+		style.Serialize();
+
+		foreach (var part in parts)
+		{
+			part.Serialize();
+		}
 		
 		Console.WriteLine("done");
 	}

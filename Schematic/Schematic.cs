@@ -5,12 +5,12 @@ namespace schematic_to_lost_cities.Schematic;
 public class Schematic
 {
 	public readonly int[,,] Blocks;
-	private string _name;
+	public string Name;
 	public NbtCompound[] Palette { get; private set; }
 	
 	public Schematic(string filePath)
 	{
-		_name = filePath;
+		Name = filePath;
 		var file = new NbtFile(filePath);
 		var size = file.RootTag.Get<NbtList>("size");
 		
@@ -51,7 +51,7 @@ public class Schematic
 				if (equalityChecker.Equals(Palette[i], consolidatedPalette.Palette[j]))
 				{
 					var replaced= ReplaceAllReferences(i, j);
-					Console.WriteLine($"{_name} - replaced {replaced} from id {i} to {j}");
+					Console.WriteLine($"{Name} - replaced {replaced} from id {i} to {j}");
 				}
 			}
 		}
