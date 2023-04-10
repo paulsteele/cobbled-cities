@@ -10,7 +10,7 @@ public class Schematic
 	
 	public Schematic(string filePath)
 	{
-		Name = filePath;
+		Name = filePath.Replace(".nbt", "");
 		var file = new NbtFile(filePath);
 		var size = file.RootTag.Get<NbtList>("size");
 		

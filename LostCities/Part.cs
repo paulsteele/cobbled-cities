@@ -27,15 +27,48 @@ public class Part
 
 	public void Serialize()
 	{
-		if (!Directory.Exists("parts"))
+		var partsDir = "output/data/lostcities/lostcities/parts";
+		if (!Directory.Exists(partsDir))
 		{
-			Directory.CreateDirectory("parts");
+			Directory.CreateDirectory(partsDir);
 		}
+
+		var buildingsDir = "output/data/lostcities/lostcities/buildings";
+		if (!Directory.Exists(buildingsDir))
+		{
+			Directory.CreateDirectory(buildingsDir);
+		}
+
+		var partList = new List<BuildingPart>();
+		
 
 		for (var index = 0; index < _floors.Length; index++)
 		{
 			var floor = _floors[index];
-			File.WriteAllText($"parts/{Name}_{index}.json", JsonConvert.SerializeObject(floor, Formatting.Indented));
+			var part = $"{Name}_{index}";
+			File.WriteAllText($"{partsDir}/{part}.json", JsonConvert.SerializeObject(floor, Formatting.Indented));
+			
+			partList.Add(new BuildingPart(){part = part, top = index == _floors.Length -1});
 		}
+
+		var building = new Building()
+		{
+			parts = partList.ToArray()
+		};
+		
+		File.WriteAllText($"{buildingsDir}/{Name}.json", JsonConvert.SerializeObject(building, Formatting.Indented));
 	}
+}
+
+public class Building
+{
+	public string filler = "#";
+	public string rubble = "}";
+	public BuildingPart[] parts { get; set; }
+}
+
+public class BuildingPart
+{
+	public string part { get; set; }
+	public bool top { get; set; }
 }

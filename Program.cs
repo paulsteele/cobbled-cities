@@ -29,7 +29,7 @@ public static class Program
 		var lostCitiesPalette = new Palette();
 		lostCitiesPalette.Populate(palette);
 
-		File.WriteAllText("output-palette.json",JsonConvert.SerializeObject(lostCitiesPalette, Formatting.Indented));
+		lostCitiesPalette.Serialize();
 
 		var parts = schematics.Select(s => new Part(s, lostCitiesPalette)).ToList();
 		var style = new CityStyle();
@@ -38,6 +38,8 @@ public static class Program
 
 		var world = new World();
 		world.Serialize();
+		var writer = new StaticWriter();
+		writer.Serialize();
 
 		foreach (var part in parts)
 		{

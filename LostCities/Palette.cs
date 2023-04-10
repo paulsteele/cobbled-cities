@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using fNbt;
+using Newtonsoft.Json;
 using schematic_to_lost_cities.Schematic;
 
 namespace schematic_to_lost_cities.LostCities;
@@ -8,10 +9,10 @@ public class Palette
 {
 	[JsonPropertyName("palette")] public List<PaletteEntry> palette => Items.Values.ToList();
 	
-	[JsonIgnore]
+	[System.Text.Json.Serialization.JsonIgnore]
 	private Dictionary<int, PaletteEntry> Items { get; }
 
-	[JsonIgnore] 
+	[System.Text.Json.Serialization.JsonIgnore] 
 	private char _currentChar = 'À';
 
 	public Palette()
@@ -35,5 +36,16 @@ public class Palette
 	public char GetCharacter(int index)
 	{
 		return Items[index].character;
+	}
+
+	public void Serialize()
+	{
+		var paletteDir = "output/data/lostcities/lostcities/palettes";
+		if (!Directory.Exists(paletteDir))
+		{
+			Directory.CreateDirectory(paletteDir);
+		}
+
+		File.WriteAllText($"{paletteDir}/schematic-palette.json", JsonConvert.SerializeObject(this, Formatting.Indented));
 	}
 }
