@@ -57,7 +57,7 @@ public class RailBlocks
 
 public class SphereBlocks
 {
-  [JsonPropertyName("glass")] public string glass { get; }= "y";
+  [JsonPropertyName("glass")] public string glass { get; }= "Z";
   [JsonPropertyName("border")] public string border { get; }= "9";
   [JsonPropertyName("inner")] public string inner { get; }= "b";
 }
@@ -73,9 +73,9 @@ public class Selectors
   };
   
   [JsonPropertyName("fronts")] public BuildingSelection[] fronts { get; }= {
-    new BuildingSelection(1.0m, "bridge_front1"),
-    new BuildingSelection(1.0m, "bridge_front2"),
-    new BuildingSelection(1.0m, "bridge_front3"),
+    new BuildingSelection(1.0m, "building_front1"),
+    new BuildingSelection(1.0m, "building_front2"),
+    new BuildingSelection(1.0m, "building_front3"),
   };
   
   [JsonPropertyName("stairs")] public BuildingSelection[] stairs { get; }= {
@@ -98,7 +98,7 @@ public class Selectors
     new BuildingSelection(1.0m, "park_plants_pillars"),
     new BuildingSelection(1.0m, "park_fountain1"),
     new BuildingSelection(1.0m, "park_fountain2"),
-    new BuildingSelection(1.0m, "park_building1"),
+    new BuildingSelection(1.0m, "park_building"),
     new BuildingSelection(1.0m, "park_building2"),
   };
   

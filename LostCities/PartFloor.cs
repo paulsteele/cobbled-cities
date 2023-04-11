@@ -8,6 +8,8 @@ public class PartFloor
 	[JsonPropertyName("slices")] 
 	public string[,] slices;
 
+	public string refpalette = "schematicpalette";
+
 	[JsonIgnore]
 	public static int SLICES_PER_FLOOR = 6;
 
