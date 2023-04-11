@@ -19,6 +19,7 @@ public class Schematic
 		var z = size.Get<NbtInt>(2).IntValue;
 
 		Blocks = new int[y, x, z];
+		ReplaceAllReferences(0, -1);
 		Palette = file.RootTag.Get<NbtList>("palette").ToArray<NbtCompound>();
 		
 		var blocks = file.RootTag.Get<NbtList>("blocks");
@@ -66,7 +67,7 @@ public class Schematic
 		{
 			for (var x = 0; x < Blocks.GetLength(1); x++)
 			{
-				for (var z = 9; z < Blocks.GetLength(2); z++)
+				for (var z = 0; z < Blocks.GetLength(2); z++)
 				{
 					if (Blocks[y, x, z] == oldVal)
 					{

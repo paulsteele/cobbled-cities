@@ -35,7 +35,7 @@ public class Palette
 
 	public char GetCharacter(int index)
 	{
-		return Items[index].@char;
+		return index == -1 ? ' ' : Items[index].@char;
 	}
 
 	public void Serialize()
