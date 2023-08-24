@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json.Serialization;
 using fNbt;
 using Newtonsoft.Json;
@@ -28,9 +29,43 @@ public class Palette
 			Items.Add(index, new PaletteEntry
 			{
 				@char = _currentChar++,
-				block = item.Get<NbtString>("Name").Value
+				block = GenerateName(item)
 			});
 		}
+	}
+
+	private string GenerateName(NbtCompound item)
+	{
+		var name = item.Get<NbtString>("Name")?.Value;
+
+		var list = new string[]
+		{
+			"quark",
+			"cobblemon",
+			"createdeco",
+			"supplementaries"
+		};
+		
+		
+		var properties = item.Get<NbtCompound?>("Properties");
+
+		if (list.All(l => !name.Contains(l)))
+		{
+			if (properties != null)
+			{
+				var props = properties
+					.Where(tag => tag.Name != "waterlogged")
+					.Where(tag => tag.Name != "powered")
+					.Select(tag => $"\"{tag.Name}\"=\"{tag.StringValue}\"").ToList();
+
+				if (props.Count > 1)
+				{
+					name = $"{name}[{string.Join(',', props)}]";
+				}
+			}
+		}
+
+		return name;
 	}
 
 	public char GetCharacter(int index)
