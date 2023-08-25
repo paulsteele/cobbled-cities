@@ -73,9 +73,7 @@ public class Selectors
   };
   
   [JsonPropertyName("fronts")] public BuildingSelection[] fronts { get; }= {
-    new BuildingSelection(1.0m, "building_front1"),
-    new BuildingSelection(1.0m, "building_front2"),
-    new BuildingSelection(1.0m, "building_front3"),
+    new BuildingSelection(1.0m, "emptyfront"),
   };
   
   [JsonPropertyName("stairs")] public BuildingSelection[] stairs { get; }= {

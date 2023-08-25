@@ -30,6 +30,88 @@ Schematic Assets for Lost Cities
     }
 }
 """;
+
+	private string _emptyFront = """
+{
+  "xsize": 2,
+  "zsize": 16,
+  "slices": [
+    [
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  "
+    ],
+    [
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  "
+    ],
+    [
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  "
+    ],
+    [
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  ",
+      "  "
+    ]
+  ]
+}
+
+""";
 	
 	public void Serialize()
 	{
@@ -43,7 +125,14 @@ Schematic Assets for Lost Cities
 		{
 			Directory.CreateDirectory(packDir);
 		}
+		var partsDir = "output/data/lostcities/lostcities/parts";
+		if (!Directory.Exists(packDir))
+		{
+			Directory.CreateDirectory(packDir);
+		}
+
 		File.WriteAllText($"{tomlDir}/mods.toml", tomlContents);
 		File.WriteAllText($"{packDir}/pack.mcmeta", packMcMetaContents);
+		File.WriteAllText($"{partsDir}/emptyfront.json", _emptyFront);
 	}
 }

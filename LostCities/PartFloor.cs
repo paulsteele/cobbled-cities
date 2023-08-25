@@ -34,7 +34,7 @@ public class PartFloor
 				builder.Append(
 					id.GetLength(0) <= y 
 					? ' ' 
-					: translation.GetCharacter(id[y, x, z])
+					: translation.GetCharacter(id[y, z, x])
 				);
 			}
 

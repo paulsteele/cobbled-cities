@@ -55,7 +55,6 @@ public class Palette
 			{
 				var props = properties
 					.Where(tag => tag.Name != "waterlogged")
-					.Where(tag => tag.Name != "powered")
 					.Select(tag => $"\"{tag.Name}\"=\"{tag.StringValue}\"").ToList();
 
 				if (props.Count > 1)
