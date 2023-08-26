@@ -73,6 +73,7 @@ public static class Program
 		jsonWriter.Serialize(buildingTemplatePool);
 		
 		Dependencies.Container.Resolve<NbtStaticHandler>().CopyAndFixStaticFiles();
+		var things = Dependencies.Container.Resolve<NbtPartAssembler>().AssembleBuildings(6);
 		Dependencies.Container.Resolve<JarWriter>().CreateJar();
 	}
 }
