@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "schematic-to-lost-cities", "schematic-to-lost-cities.csproj", "{25F59512-9375-47E7-8873-CAF318206E1D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Minecraft City Datapack Generator", "minecraftCityDatapackGenerator.csproj", "{25F59512-9375-47E7-8873-CAF318206E1D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

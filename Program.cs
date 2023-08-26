@@ -1,59 +1,15 @@
-﻿using System.IO.Compression;
-using Newtonsoft.Json;
-using schematic_to_lost_cities.LostCities;
-using schematic_to_lost_cities.Schematic;
+﻿using Autofac;
+using Minecraft.City.Datapack.Generator.StaticWriters;
 
-namespace schematic_to_lost_cities;
+namespace Minecraft.City.Datapack.Generator;
 
-// ReSharper disable once UnusedType.Global
 public static class Program
 {
-	// ReSharper disable once UnusedMember.Global
 	public static void Main()
 	{
-		var pokecenter = new Schematic.Schematic("pokecenter.nbt");
-		var pokemart = new Schematic.Schematic("pokemart.nbt");
-
-		var schematics = new List<Schematic.Schematic>()
-		{
-			pokecenter,
-			pokemart
-		};
+		var staticWriters = Dependencies.Container.Resolve<IEnumerable<IStaticWriter>>();
+		staticWriters.ToList().ForEach(w => w.Serialize());
 		
-		var palette = new ConsolidatedPalette(schematics);
-
-		foreach (var schematic in schematics)
-		{
-			schematic.UpdateToUseConsolidatedPalette(palette);
-		}
-
-		var lostCitiesPalette = new Palette();
-		lostCitiesPalette.Populate(palette);
-
-		lostCitiesPalette.Serialize();
-
-		var parts = schematics.Select(s => new Part(s, lostCitiesPalette)).ToList();
-		var style = new CityStyle();
-		style.SetBuildings(parts);
-		style.Serialize();
-
-		var world = new World();
-		world.Serialize();
-		var writer = new StaticWriter();
-		writer.Serialize();
-
-		foreach (var part in parts)
-		{
-			part.Serialize();
-		}
-
-		var jarFile = "schematic-cities.jar";
-		if (File.Exists(jarFile))
-		{
-			File.Delete(jarFile);
-		}
-		ZipFile.CreateFromDirectory("output", jarFile);
-		
-		Console.WriteLine("done");
+		Dependencies.Container.Resolve<JarWriter>().CreateJar();
 	}
 }

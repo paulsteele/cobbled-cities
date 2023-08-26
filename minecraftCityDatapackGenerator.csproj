@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <OutputType>Exe</OutputType>
-        <RootNamespace>schematic_to_lost_cities</RootNamespace>
+        <RootNamespace>Minecraft.City.Datapack.Generator</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
+      <PackageReference Include="Autofac" Version="7.1.0" />
       <PackageReference Include="fNbt" Version="0.6.4" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
