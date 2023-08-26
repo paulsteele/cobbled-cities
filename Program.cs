@@ -29,7 +29,7 @@ public static class Program
 		);
 		var cityStructure = new StructureSet
 		(
-			"data/poke-cities/worldgen/structure-set",
+			"data/poke-cities/worldgen/structure_set",
 			"city",
 			4,
 			2,
@@ -41,7 +41,7 @@ public static class Program
 			"data/poke-cities/worldgen/template_pool",
 			"city",
 			"poke-cities:city",
-			new[] { new TemplatePoolElementWeight("poke-cities:roads/road", 1) }
+			new[] { new TemplatePoolElementWeight("poke-cities:road", 1) }
 		);
 		
 		var jsonWriter = Dependencies.Container.Resolve<JsonWriter>();
