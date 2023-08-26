@@ -42,6 +42,8 @@ public class NbtFileFixer
 			.Cast<NbtCompound>()
 			.Where(b => "minecraft:jigsaw".Equals(b.Get<NbtCompound>("nbt")?.Get<NbtString>("id")?.Value));
 
+		Console.WriteLine($"Updating Jigsaw {fromPath}");
+		
 		foreach (var block in jigsawBlocks)
 		{
 			var blockNbt = block.Get<NbtCompound>("nbt");
@@ -54,6 +56,7 @@ public class NbtFileFixer
 			var joint = blockNbt.Get<NbtString>("joint");
 			var name = blockNbt.Get<NbtString>("name");
 			var pool = blockNbt.Get<NbtString>("pool");
+			var target = blockNbt.Get<NbtString>("target");
 
 			if (joint == null)
 			{
@@ -72,13 +75,20 @@ public class NbtFileFixer
 				Console.WriteLine($"Jigsaw block in {fromPath} doesn't have nbt.pool tag");
 				continue;
 			}
+			
+			if (target == null)
+			{
+				Console.WriteLine($"Jigsaw block in {fromPath} doesn't have nbt.target tag");
+				continue;
+			}
 
 			var previousJoint = joint.Value;
 			joint.Value = "Aligned";
-			Console.WriteLine($"Updated Jigsaw joint in {fromPath} from {previousJoint} to {joint.Value}");
+			Console.WriteLine($"Updated Jigsaw joint from {previousJoint} to {joint.Value}");
 
 			name.Value = GetJigsawReplacement(name.Value, "name", fromPath);
 			pool.Value = GetJigsawReplacement(pool.Value, "pool", fromPath);
+			target.Value = GetJigsawReplacement(target.Value, "target", fromPath);
 		}
 
 		nbt.SaveToFile(toPath, NbtCompression.GZip);
@@ -93,7 +103,7 @@ public class NbtFileFixer
 			{
 				continue;
 			}
-			Console.WriteLine($"Updated Jigsaw {name} in {path} from {value} to {replacement.toPool}");
+			Console.WriteLine($"Updated Jigsaw {name} from {value} to {replacement.toPool}");
 			return replacement.toPool;
 		}
 

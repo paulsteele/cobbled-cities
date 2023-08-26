@@ -47,8 +47,8 @@ public static class Program
 		(
 			"data/poke-cities/worldgen/structure_set",
 			"poke-city",
-			4,
-			2,
+			20,
+			10,
 			new []{new StructureSetItem(structure, 1)}
 		);
 		
