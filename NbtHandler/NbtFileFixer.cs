@@ -10,7 +10,7 @@ public class NbtFileFixer
 		("minecraft:b", "poke-cities:buildings"),
 	};
 
-	public void FixFile(NbtFile nbt)
+	public NbtFile FixFile(NbtFile nbt)
 	{
 		var jigsawBlocks = nbt.RootTag
 			.Get<NbtList>("blocks")
@@ -65,6 +65,8 @@ public class NbtFileFixer
 			pool.Value = GetJigsawReplacement(pool.Value, "pool", nbt.FileName);
 			target.Value = GetJigsawReplacement(target.Value, "target", nbt.FileName);
 		}
+
+		return nbt;
 	}
 
 	private string GetJigsawReplacement(string value, string name, string path)

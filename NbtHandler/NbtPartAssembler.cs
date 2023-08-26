@@ -6,6 +6,7 @@ namespace Minecraft.City.Datapack.Generator.NbtHandler;
 public class NbtPartAssembler
 {
 	private readonly NbtFileFixer _fileFixer;
+	private const string OutputPath = "output/data/poke-cities/structures/buildings";
 
 	public NbtPartAssembler(NbtFileFixer fileFixer)
 	{
@@ -24,8 +25,8 @@ public class NbtPartAssembler
 	{
 		var files = directory.GetFiles();
 
-		var bases = files.Where(f => f.Name.Contains("base")).Select(f => new NbtFile(f.FullName)).ToArray();
-		var mids = files.Where(f => f.Name.Contains("mid")).Select(f => new NbtFile(f.FullName)).ToArray();
+		var bases = files.Where(f => f.Name.Contains("base")).Select(f => new NbtFile(f.FullName)).Select(_fileFixer.FixFile).ToArray();
+		var mids = files.Where(f => f.Name.Contains("mid")).Select(f => new NbtFile(f.FullName)).Select(_fileFixer.FixFile).ToArray();
 
 		if (!bases.Any())
 		{
@@ -50,23 +51,33 @@ public class NbtPartAssembler
 
 
 		var resultNbtFiles = bases.Aggregate(
-			new List<NbtFile>(), 
+			new List<string>(), 
 			(current, baseNbt) => current.Concat(
 				midOptions.Select(l => ConsolidateNbts(baseNbt, l))
 			).ToList()
 		);
 
-		return resultNbtFiles.Select(n => n.FileName);
+		return resultNbtFiles;
 	}
 
-	private NbtFile ConsolidateNbts(NbtFile baseNbt, IEnumerable<NbtFile> additions)
+	private string ConsolidateNbts(NbtFile baseNbt, IEnumerable<NbtFile> additions)
 	{
-		return additions.Aggregate(baseNbt, AddNbtToTop);
+		var additionsArray = additions as NbtFile[] ?? additions.ToArray();
+		
+		var newNbt = new NbtFile(new NbtCompound(baseNbt.RootTag));
+		
+		var baseName = new FileInfo(baseNbt.FileName).Name.Replace(".nbt", "");
+		var additionName = string.Join('_', additionsArray.Select(f => new FileInfo(f.FileName).Name.Replace(".nbt", "")));
+
+		var path = $"{OutputPath}/{baseName}_{additionName}.nbt";
+		
+		additionsArray.Aggregate(newNbt, AddNbtToTop).SaveToFile(path, NbtCompression.GZip);
+
+		return path;
 	}
 
 	private NbtFile AddNbtToTop(NbtFile start, NbtFile newNbt)
 	{
-
 		return start;
 	}
 }
