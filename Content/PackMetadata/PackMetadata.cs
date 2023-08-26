@@ -7,5 +7,5 @@ public class PackMetadata : IWriteableData
 {
 	[JsonPropertyName("pack")] public Pack Pack => new();
 	[JsonIgnore] public string Path => "";
-	[JsonIgnore] public string FileName => "pack.mcmeta";
+	[JsonIgnore] public string FileName => "pack";
 }

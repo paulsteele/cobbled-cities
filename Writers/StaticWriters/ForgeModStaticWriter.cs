@@ -11,7 +11,7 @@ loaderVersion="[40,)"
 license="MIT"
 
 [[mods]]
-modId="cityDatapackGeneratorPokeCities"
+modId="poke_cities"
 version="1.0"
 displayName="Poke Cities"
 description='''
