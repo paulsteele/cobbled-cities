@@ -15,7 +15,6 @@ public abstract class StaticWriter : IStaticWriter
 			Directory.CreateDirectory(path);
 		}
 
-
 		File.WriteAllText(file, Contents);
 		Console.WriteLine($"Wrote to {file}");
 	}

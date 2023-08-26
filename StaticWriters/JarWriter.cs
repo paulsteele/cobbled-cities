@@ -12,6 +12,6 @@ public class JarWriter
 			File.Delete(jarFile);
 		}
 		ZipFile.CreateFromDirectory("output", jarFile);
-		Console.WriteLine($"Wrote {jarFile}");
+		Console.WriteLine($"Zipped output to {jarFile}");
 	}
 }
