@@ -40,7 +40,11 @@ public static class Program
 		(
 			"data/poke-cities/worldgen/template_pool",
 			"buildings",
-			new[] { new TemplatePoolElementWeight("poke-cities:buildings/building_1", 1) }
+			new[]
+			{
+				new TemplatePoolElementWeight("poke-cities:buildings/building_base_1", 1),
+				new TemplatePoolElementWeight("poke-cities:buildings/building_base_2", 1),
+			}
 		);
 		
 		var structure = new Structure
@@ -68,7 +72,7 @@ public static class Program
 		jsonWriter.Serialize(centerPool);
 		jsonWriter.Serialize(buildingTemplatePool);
 		
-		Dependencies.Container.Resolve<NbtFileFixer>().CopyAndFixFiles();
+		Dependencies.Container.Resolve<NbtStaticHandler>().CopyAndFixStaticFiles();
 		Dependencies.Container.Resolve<JarWriter>().CreateJar();
 	}
 }

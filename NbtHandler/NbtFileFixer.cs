@@ -9,47 +9,22 @@ public class NbtFileFixer
 		("minecraft:r", "poke-cities:roads"),
 		("minecraft:b", "poke-cities:buildings"),
 	};
-	
-	public NbtFileFixer() { }
 
-	public void CopyAndFixFiles()
+	public void FixFile(NbtFile nbt)
 	{
-		var directory = new DirectoryInfo("../../../nbts");
-
-		var files = directory.GetFiles("*.*", SearchOption.AllDirectories);
-
-		foreach (var file in files)
-		{
-			var directoryName = file.Directory.Name;
-			var fileName = file.Name;
-
-			var destinationDirectory = $"output/data/poke-cities/structures/{directoryName}";
-
-			if (!Directory.Exists(destinationDirectory))
-			{
-				Directory.CreateDirectory(destinationDirectory);
-			}
-
-			CopyAndFixFile(file.ToString(), $"{destinationDirectory}/{fileName}");
-		}
-	}
-	private void CopyAndFixFile(string fromPath, string toPath)
-	{
-		var nbt = new NbtFile(fromPath);
-
 		var jigsawBlocks = nbt.RootTag
 			.Get<NbtList>("blocks")
 			.Cast<NbtCompound>()
 			.Where(b => "minecraft:jigsaw".Equals(b.Get<NbtCompound>("nbt")?.Get<NbtString>("id")?.Value));
 
-		Console.WriteLine($"Updating Jigsaw {fromPath}");
+		Console.WriteLine($"Updating Jigsaw {nbt.FileName}");
 		
 		foreach (var block in jigsawBlocks)
 		{
 			var blockNbt = block.Get<NbtCompound>("nbt");
 			if (blockNbt == null)
 			{
-				Console.WriteLine($"Jigsaw block in {fromPath} doesn't have nbt tag");
+				Console.WriteLine($"Jigsaw block in {nbt.FileName} doesn't have nbt tag");
 				continue;
 			}
 			
@@ -60,25 +35,25 @@ public class NbtFileFixer
 
 			if (joint == null)
 			{
-				Console.WriteLine($"Jigsaw block in {fromPath} doesn't have nbt.joint tag");
+				Console.WriteLine($"Jigsaw block in {nbt.FileName} doesn't have nbt.joint tag");
 				continue;
 			}
 			
 			if (name == null)
 			{
-				Console.WriteLine($"Jigsaw block in {fromPath} doesn't have nbt.name tag");
+				Console.WriteLine($"Jigsaw block in {nbt.FileName} doesn't have nbt.name tag");
 				continue;
 			}
 			
 			if (pool == null)
 			{
-				Console.WriteLine($"Jigsaw block in {fromPath} doesn't have nbt.pool tag");
+				Console.WriteLine($"Jigsaw block in {nbt.FileName} doesn't have nbt.pool tag");
 				continue;
 			}
 			
 			if (target == null)
 			{
-				Console.WriteLine($"Jigsaw block in {fromPath} doesn't have nbt.target tag");
+				Console.WriteLine($"Jigsaw block in {nbt.FileName} doesn't have nbt.target tag");
 				continue;
 			}
 
@@ -86,13 +61,10 @@ public class NbtFileFixer
 			joint.Value = "Aligned";
 			Console.WriteLine($"Updated Jigsaw joint from {previousJoint} to {joint.Value}");
 
-			name.Value = GetJigsawReplacement(name.Value, "name", fromPath);
-			pool.Value = GetJigsawReplacement(pool.Value, "pool", fromPath);
-			target.Value = GetJigsawReplacement(target.Value, "target", fromPath);
+			name.Value = GetJigsawReplacement(name.Value, "name", nbt.FileName);
+			pool.Value = GetJigsawReplacement(pool.Value, "pool", nbt.FileName);
+			target.Value = GetJigsawReplacement(target.Value, "target", nbt.FileName);
 		}
-
-		nbt.SaveToFile(toPath, NbtCompression.GZip);
-		Console.WriteLine($"Saved {toPath}");
 	}
 
 	private string GetJigsawReplacement(string value, string name, string path)
