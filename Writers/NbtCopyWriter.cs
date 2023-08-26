@@ -12,9 +12,11 @@ public class NbtCopyWriter
 
 		var directories = Directory.GetDirectories("../../../nbts");
 		
+
 		foreach (var directory in directories)
 		{
-			CopyDirectory.IO.CopyDirectory(directory, path);
+			var d = new DirectoryInfo(directory);
+			CopyDirectory.IO.CopyDirectory(directory, $"{path}/{d.Name}");
 		}
 	}
 }
