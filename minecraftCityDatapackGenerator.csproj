@@ -9,6 +9,5 @@
     <ItemGroup>
       <PackageReference Include="Autofac" Version="7.1.0" />
       <PackageReference Include="fNbt" Version="0.6.4" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
 </Project>

@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Autofac;
-using Minecraft.City.Datapack.Generator.StaticWriters;
 
 namespace Minecraft.City.Datapack.Generator;
 

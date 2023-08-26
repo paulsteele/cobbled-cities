@@ -1,9 +1,9 @@
-namespace Minecraft.City.Datapack.Generator.StaticWriters;
+namespace Minecraft.City.Datapack.Generator.Writers.StaticWriters;
 
 public abstract class StaticWriter : IStaticWriter
 {
-	protected abstract string Path { get; }
-	protected abstract string FileName { get; }
+	public abstract string Path { get; }
+	public abstract string FileName { get; }
 	protected abstract string Contents { get; }
 
 	public void Serialize()
@@ -20,7 +20,7 @@ public abstract class StaticWriter : IStaticWriter
 	}
 }
 
-public interface IStaticWriter
+public interface IStaticWriter : IWriteableData
 {
 	public void Serialize();
 }
