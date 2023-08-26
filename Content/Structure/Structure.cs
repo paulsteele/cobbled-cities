@@ -5,11 +5,11 @@ namespace Minecraft.City.Datapack.Generator.Content.Structure;
 
 public class Structure : IWriteableData
 {
-	public Structure(string path, string fileName, string startPool)
+	public Structure(string path, string fileName, TemplatePool.TemplatePool startPool)
 	{
 		Path = path;
 		FileName = fileName;
-		StartPool = startPool;
+		StartPool = startPool.Name;
 	}
 
 	[JsonIgnore] public string Path { get; }

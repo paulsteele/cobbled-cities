@@ -5,11 +5,11 @@ namespace Minecraft.City.Datapack.Generator.Content.TemplatePool;
 
 public class TemplatePool : IWriteableData
 {
-	public TemplatePool(string path, string fileName, string name, IEnumerable<TemplatePoolElementWeight> elementWeights)
+	public TemplatePool(string path, string name, IEnumerable<TemplatePoolElementWeight> elementWeights)
 	{
 		Path = path;
-		FileName = fileName;
-		Name = name;
+		FileName = name;
+		Name = $"poke-cities:{name}";
 		Elements = elementWeights.ToArray();
 	}
 
