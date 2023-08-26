@@ -22,10 +22,17 @@ public static class Program
 
 		var packMetadata = Dependencies.Container.Resolve<PackMetadata>();
 
-		var templatePool = new TemplatePool
+		var roadPool = new TemplatePool
 		(
 			"data/poke-cities/worldgen/template_pool",
 			"roads",
+			new[] { new TemplatePoolElementWeight("poke-cities:roads/road_2", 1) }
+		);
+		
+		var centerPool = new TemplatePool
+		(
+			"data/poke-cities/worldgen/template_pool",
+			"center",
 			new[] { new TemplatePoolElementWeight("poke-cities:roads/road_1", 1) }
 		);
 
@@ -40,7 +47,7 @@ public static class Program
 		(
 			"data/poke-cities/worldgen/structure",
 			"poke-city",
-			templatePool
+			centerPool
 		);
 		
 		var cityStructure = new StructureSet
@@ -57,7 +64,8 @@ public static class Program
 		jsonWriter.Serialize(packMetadata, ".mcmeta");
 		jsonWriter.Serialize(cityStructure);
 		jsonWriter.Serialize(structure);
-		jsonWriter.Serialize(templatePool);
+		jsonWriter.Serialize(roadPool);
+		jsonWriter.Serialize(centerPool);
 		jsonWriter.Serialize(buildingTemplatePool);
 		
 		Dependencies.Container.Resolve<NbtFileFixer>().CopyAndFixFiles();
