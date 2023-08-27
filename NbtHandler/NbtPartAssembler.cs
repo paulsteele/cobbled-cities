@@ -13,12 +13,12 @@ public class NbtPartAssembler
 		_fileFixer = fileFixer;
 	}
 	
-	public IEnumerable<string> AssembleBuildings(int height)
+	public IEnumerable<IEnumerable<string>> AssembleBuildings(int height)
 	{
 		var parts = new DirectoryInfo("../../../nbts/parts");
 		var buildings = parts.GetDirectories();
 
-		return buildings.SelectMany(d => AssembleBuilding(d, height)).Where(s => s.Any()).ToArray();
+		return buildings.Select(d => AssembleBuilding(d, height)).Where(s => s.Any()).ToArray();
 	}
 
 	private IEnumerable<string> AssembleBuilding(DirectoryInfo directory, int height)

@@ -39,7 +39,15 @@ public static class Program
 		(
 			"data/poke-cities/worldgen/template_pool",
 			"buildings",
-			partBuildings.Select(pb => new TemplatePoolElementWeight($"poke-cities:buildings/{pb}", 1)).ToArray()
+			partBuildings.SelectMany(buildingBase =>
+			{
+				var buildingBaseArray = buildingBase as string[] ?? buildingBase.ToArray();
+				
+				var count = buildingBaseArray.Length;
+
+				return buildingBaseArray.Select(single => new TemplatePoolElementWeight($"poke-cities:buildings/{single}", int.Max(150 / count, 1)));
+
+			}).ToArray()
 		);
 		
 		var structure = new Structure
