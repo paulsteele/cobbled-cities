@@ -14,25 +14,24 @@ public static class Program
 	public static void Main()
 	{
 		var output = new DirectoryInfo("output");
-		
-		output.Delete(true);
+
+		if (output.Exists)
+		{
+			output.Delete(true);
+		}
 		
 		var staticWriters = Dependencies.Container.Resolve<IEnumerable<IStaticWriter>>();
 		staticWriters.ToList().ForEach(w => w.Serialize());
 
 		var packMetadata = Dependencies.Container.Resolve<PackMetadata>();
+		
+		Dependencies.Container.Resolve<NbtStaticHandler>().CopyAndFixStaticFiles();
+		var partBuildings = Dependencies.Container.Resolve<NbtPartAssembler>().AssembleBuildings(6);
 
 		var roadPool = new TemplatePool
 		(
 			"data/poke-cities/worldgen/template_pool",
 			"roads",
-			new[] { new TemplatePoolElementWeight("poke-cities:roads/road_2", 1) }
-		);
-		
-		var centerPool = new TemplatePool
-		(
-			"data/poke-cities/worldgen/template_pool",
-			"center",
 			new[] { new TemplatePoolElementWeight("poke-cities:roads/road_1", 1) }
 		);
 
@@ -40,18 +39,14 @@ public static class Program
 		(
 			"data/poke-cities/worldgen/template_pool",
 			"buildings",
-			new[]
-			{
-				new TemplatePoolElementWeight("poke-cities:buildings/building_base_1", 1),
-				new TemplatePoolElementWeight("poke-cities:buildings/building_base_2", 1),
-			}
+			partBuildings.Select(pb => new TemplatePoolElementWeight($"poke-cities:buildings/{pb}", 1)).ToArray()
 		);
 		
 		var structure = new Structure
 		(
 			"data/poke-cities/worldgen/structure",
 			"poke-city",
-			centerPool
+			roadPool
 		);
 		
 		var cityStructure = new StructureSet
@@ -69,11 +64,8 @@ public static class Program
 		jsonWriter.Serialize(cityStructure);
 		jsonWriter.Serialize(structure);
 		jsonWriter.Serialize(roadPool);
-		jsonWriter.Serialize(centerPool);
 		jsonWriter.Serialize(buildingTemplatePool);
 		
-		Dependencies.Container.Resolve<NbtStaticHandler>().CopyAndFixStaticFiles();
-		var things = Dependencies.Container.Resolve<NbtPartAssembler>().AssembleBuildings(6);
 		Dependencies.Container.Resolve<JarWriter>().CreateJar();
 	}
 }

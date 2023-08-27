@@ -69,15 +69,53 @@ public class NbtPartAssembler
 		var baseName = new FileInfo(baseNbt.FileName).Name.Replace(".nbt", "");
 		var additionName = string.Join('_', additionsArray.Select(f => new FileInfo(f.FileName).Name.Replace(".nbt", "")));
 
-		var path = $"{OutputPath}/{baseName}_{additionName}.nbt";
+		var location = $"{baseName}_{additionName}";
+		var path = $"{OutputPath}/{location}.nbt";
 		
 		additionsArray.Aggregate(newNbt, AddNbtToTop).SaveToFile(path, NbtCompression.GZip);
 
-		return path;
+		return location;
 	}
 
 	private NbtFile AddNbtToTop(NbtFile start, NbtFile newNbt)
 	{
+		var startX = start.RootTag.Get<NbtList>("size")?[0].IntValue;
+		var startY = start.RootTag.Get<NbtList>("size")?[1].IntValue;
+		var startZ = start.RootTag.Get<NbtList>("size")?[2].IntValue;
+		var newX = newNbt.RootTag.Get<NbtList>("size")?[0].IntValue;
+		var newY = newNbt.RootTag.Get<NbtList>("size")?[1].IntValue;
+		var newZ = newNbt.RootTag.Get<NbtList>("size")?[2].IntValue;
+
+		if (startX != newX || startZ != newZ)
+		{
+			Console.Error.WriteLine("Sizes do not match up adding NbtToTop");
+			return start;
+		}
+
+		start.RootTag.Get<NbtList>("size")[1] = new NbtInt(startY.Value + newY.Value);
+
+		var startPalette = start.RootTag.Get<NbtList>("palette");
+		var newPalette = newNbt.RootTag.Get<NbtList>("palette").Clone() as NbtList;
+
+		var startPaletteCountCount = startPalette.Count;
+		
+		startPalette.AddRange(newPalette);
+		
+		var startBlocks = start.RootTag.Get<NbtList>("blocks");
+		var newBlocks = newNbt.RootTag.Get<NbtList>("blocks").Clone() as NbtList;
+
+		foreach (var newBlock in newBlocks)
+		{
+			var block = newBlock as NbtCompound;
+
+			var state = block.Get<NbtInt>("state");
+			state.Value = state.IntValue + startPaletteCountCount;
+
+			var pos = block.Get<NbtList>("pos")[1] = new NbtInt(block.Get<NbtList>("pos")[1].IntValue + startY.Value);
+		}
+
+		startBlocks.AddRange(newBlocks);
+		
 		return start;
 	}
 }
