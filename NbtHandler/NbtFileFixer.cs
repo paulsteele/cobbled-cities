@@ -7,6 +7,11 @@ public class NbtFileFixer
 	private readonly (string fromPool, string toPool)[] _replacements = 
 	{
 		("minecraft:r", "poke-cities:roads"),
+		("minecraft:2r", "poke-cities:tworoad"),
+		("minecraft:2i", "poke-cities:twointer"),
+		("minecraft:5r", "poke-cities:fiveroad"),
+		("minecraft:5i", "poke-cities:fiveinter"),
+		("minecraft:p", "poke-cities:park"),
 		("minecraft:b", "poke-cities:buildings"),
 	};
 

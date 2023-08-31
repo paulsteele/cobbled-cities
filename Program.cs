@@ -28,11 +28,50 @@ public static class Program
 		Dependencies.Container.Resolve<NbtStaticHandler>().CopyAndFixStaticFiles();
 		var partBuildings = Dependencies.Container.Resolve<NbtPartAssembler>().AssembleBuildings(6);
 
-		var roadPool = new TemplatePool
+		var start = new TemplatePool
 		(
 			"data/poke-cities/worldgen/template_pool",
-			"roads",
-			new[] { new TemplatePoolElementWeight("poke-cities:roads/road_1", 1) }
+			"start",
+			new[] { new TemplatePoolElementWeight("poke-cities:roads/s", 1) }
+		);
+		var twointer = new TemplatePool
+		(
+			"data/poke-cities/worldgen/template_pool",
+			"twointer",
+			new[] { new TemplatePoolElementWeight("poke-cities:roads/2i", 1) }
+		);
+		var fiveinter = new TemplatePool
+		(
+			"data/poke-cities/worldgen/template_pool",
+			"fiveinter",
+			new[] { new TemplatePoolElementWeight("poke-cities:roads/5i", 1) }
+		);
+		var tworoad = new TemplatePool
+		(
+			"data/poke-cities/worldgen/template_pool",
+			"tworoad",
+			new[]
+			{
+				new TemplatePoolElementWeight("poke-cities:roads/2r", 10),
+				new TemplatePoolElementWeight("poke-cities:roads/p", 1)
+			}
+		);
+		var fiveroad = new TemplatePool
+		(
+			"data/poke-cities/worldgen/template_pool",
+			"fiveroad",
+			new[]
+			{
+				new TemplatePoolElementWeight("poke-cities:roads/5r", 100),
+				new TemplatePoolElementWeight("poke-cities:roads/p", 5),
+				new TemplatePoolElementWeight("poke-cities:roads/2r", 1),
+			}
+		);
+		var park = new TemplatePool
+		(
+			"data/poke-cities/worldgen/template_pool",
+			"park",
+			new[] { new TemplatePoolElementWeight("poke-cities:roads/p", 1) }
 		);
 
 		var buildingTemplatePool = new TemplatePool
@@ -54,7 +93,7 @@ public static class Program
 		(
 			"data/poke-cities/worldgen/structure",
 			"poke-city",
-			roadPool
+			start
 		);
 		
 		var cityStructure = new StructureSet
@@ -71,7 +110,12 @@ public static class Program
 		jsonWriter.Serialize(packMetadata, ".mcmeta");
 		jsonWriter.Serialize(cityStructure);
 		jsonWriter.Serialize(structure);
-		jsonWriter.Serialize(roadPool);
+		jsonWriter.Serialize(start);
+		jsonWriter.Serialize(twointer);
+		jsonWriter.Serialize(tworoad);
+		jsonWriter.Serialize(fiveinter);
+		jsonWriter.Serialize(fiveroad);
+		jsonWriter.Serialize(park);
 		jsonWriter.Serialize(buildingTemplatePool);
 		
 		Dependencies.Container.Resolve<JarWriter>().CreateJar();
