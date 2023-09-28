@@ -79,12 +79,8 @@ public class NbtPartAssembler
 
 	private NbtFile AddNbtToTop(NbtFile start, NbtFile newNbt)
 	{
-		var startX = start.RootTag.Get<NbtList>("size")?[0].IntValue;
-		var startY = start.RootTag.Get<NbtList>("size")?[1].IntValue;
-		var startZ = start.RootTag.Get<NbtList>("size")?[2].IntValue;
-		var newX = newNbt.RootTag.Get<NbtList>("size")?[0].IntValue;
-		var newY = newNbt.RootTag.Get<NbtList>("size")?[1].IntValue;
-		var newZ = newNbt.RootTag.Get<NbtList>("size")?[2].IntValue;
+		var (startX, startY, startZ) = start.RootTag.GetNbtDimensions();
+		var (newX, newY, newZ) = start.RootTag.GetNbtDimensions();
 
 		if (startX != newX || startZ != newZ)
 		{
@@ -92,7 +88,7 @@ public class NbtPartAssembler
 			return start;
 		}
 
-		start.RootTag.Get<NbtList>("size")[1] = new NbtInt(startY.Value + newY.Value);
+		start.RootTag.Get<NbtList>("size")[1] = new NbtInt(startY + newY);
 
 		var startPalette = start.RootTag.Get<NbtList>("palette");
 		var newPalette = newNbt.RootTag.Get<NbtList>("palette").Clone() as NbtList;
@@ -111,7 +107,7 @@ public class NbtPartAssembler
 			var state = block.Get<NbtInt>("state");
 			state.Value = state.IntValue + startPaletteCountCount;
 
-			var pos = block.Get<NbtList>("pos")[1] = new NbtInt(block.Get<NbtList>("pos")[1].IntValue + startY.Value);
+			var pos = block.Get<NbtList>("pos")[1] = new NbtInt(block.Get<NbtList>("pos")[1].IntValue + startY);
 		}
 
 		startBlocks.AddRange(newBlocks);
