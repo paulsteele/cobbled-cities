@@ -1,6 +1,13 @@
 ﻿namespace Minecraft.City.Datapack.Generator.Tiling.Roads;
 
-public enum RoadTile
+public class RoadTile
+{
+	public RoadTileType Type { get; set; }
+	public int X { get; set; }
+	public int Z { get; set; }
+}
+
+public enum RoadTileType
 {
 	Empty,
 	Filled,

@@ -2,21 +2,43 @@
 
 public class RoadSection
 {
-	public RoadTile[,] Grid { get; set; } = new RoadTile[0, 0];
+	private RoadTile?[,] Grid { get; }
 
+	private List<RoadTile> Jigsaws { get; } = new();
+
+	public RoadSection(int x, int z)
+	{
+		Grid = new RoadTile[x, z];
+	}
+
+	public void AddTile(RoadTile tile)
+	{
+		Grid[tile.X, tile.Z] = tile;
+
+		if (tile.Type is RoadTileType.East or RoadTileType.North or RoadTileType.West or RoadTileType.South)
+		{
+			Jigsaws.Add(tile);
+		}
+	}
+	
 	public void DebugPrint()
 	{
 		for (var i = 0; i < Grid.GetLength(0); i++)
 		{
 			for (var j = 0; j < Grid.GetLength(1); j++)
 			{
-				var display = Grid[j, i] switch
+				if (Grid[j, i] == null)
 				{
-					RoadTile.Filled => 'x',
-					RoadTile.North => '↑',
-					RoadTile.East => '→',
-					RoadTile.South => '↓',
-					RoadTile.West => '←',
+					Console.Write(' ');
+					continue;
+				}
+				var display = Grid[j, i]!.Type switch
+				{
+					RoadTileType.Filled => 'x',
+					RoadTileType.North => '↑',
+					RoadTileType.East => '→',
+					RoadTileType.South => '↓',
+					RoadTileType.West => '←',
 					_ => ' '
 				};
 				Console.Write(display);
@@ -25,7 +47,7 @@ public class RoadSection
 		}
 	}
 
-	public RoadSection TakeSection()
+	public RoadSection TakeSubSection()
 	{
 		return this;
 	}

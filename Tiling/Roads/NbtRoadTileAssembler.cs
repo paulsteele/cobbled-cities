@@ -39,12 +39,12 @@ public class NbtRoadTileAssembler
 		
 		if (blocks == null)
 		{
-			return new RoadSection();
+			return new RoadSection(0, 0);
 		}
 
 		var (x, _, z) = nbtFile.RootTag.GetNbtDimensions();
 
-		var grid = new RoadTile[x, z];
+		var section = new RoadSection(x, z);
 
 		foreach (var block in blocks)
 		{
@@ -54,26 +54,34 @@ public class NbtRoadTileAssembler
 			}
 
 			var (posX, _,  posZ) = compound.GetNbtPosition();
-			
-			grid[posX, posZ] = RoadTile.Filled;
 
-			if (!compound.IsJigsaw())
+			var tile = new RoadTile
 			{
-				continue;
-			}
-
-			var orientation = compound.GetPaletteTag("orientation");
-
-			grid[posX, posZ] = orientation switch
-			{
-				"north_up" => RoadTile.North,
-				"south_up" => RoadTile.South,
-				"west_up" => RoadTile.West,
-				"east_up" => RoadTile.East,
-				_ => grid[posX, posZ]
+				X = posX,
+				Z = posZ
 			};
+			
+			if (compound.IsJigsaw())
+			{
+				var orientation = compound.GetPaletteTag("orientation");
+
+				tile.Type = orientation switch
+				{
+					"north_up" => RoadTileType.North,
+					"south_up" => RoadTileType.South,
+					"west_up" => RoadTileType.West,
+					"east_up" => RoadTileType.East,
+					_ => RoadTileType.Filled
+				};
+			}
+			else
+			{
+				tile.Type = RoadTileType.Filled;
+			}
+			
+			section.AddTile(tile);
 		}
 
-		return new RoadSection {Grid = grid};
+		return section;
 	}
 }
