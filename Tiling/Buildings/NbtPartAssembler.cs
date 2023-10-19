@@ -1,7 +1,8 @@
 ﻿using Combinatorics.Collections;
 using fNbt;
+using Minecraft.City.Datapack.Generator.NbtHelpers;
 
-namespace Minecraft.City.Datapack.Generator.NbtHandler;
+namespace Minecraft.City.Datapack.Generator.Tiling.Buildings;
 
 public class NbtPartAssembler
 {

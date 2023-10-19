@@ -1,6 +1,7 @@
 ﻿using fNbt;
+using Minecraft.City.Datapack.Generator.Tiling.Buildings;
 
-namespace Minecraft.City.Datapack.Generator.NbtHandler;
+namespace Minecraft.City.Datapack.Generator.NbtHelpers;
 
 public class NbtStaticHandler
 {

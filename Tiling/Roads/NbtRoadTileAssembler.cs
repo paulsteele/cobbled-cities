@@ -1,6 +1,7 @@
 ﻿using fNbt;
+using Minecraft.City.Datapack.Generator.NbtHelpers;
 
-namespace Minecraft.City.Datapack.Generator.NbtHandler;
+namespace Minecraft.City.Datapack.Generator.Tiling.Roads;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public class NbtRoadTileAssembler
@@ -32,18 +33,18 @@ public class NbtRoadTileAssembler
 		grid.DebugPrint();
 	}
 
-	private GridSection ConvertNbtToGrid(NbtFile nbtFile)
+	private RoadSection ConvertNbtToGrid(NbtFile nbtFile)
 	{
 		var blocks = nbtFile.RootTag.Get<NbtList>("blocks");
 		
 		if (blocks == null)
 		{
-			return new GridSection();
+			return new RoadSection();
 		}
 
 		var (x, _, z) = nbtFile.RootTag.GetNbtDimensions();
 
-		var grid = new GridSectionTile[x, z];
+		var grid = new RoadTile[x, z];
 
 		foreach (var block in blocks)
 		{
@@ -54,7 +55,7 @@ public class NbtRoadTileAssembler
 
 			var (posX, _,  posZ) = compound.GetNbtPosition();
 			
-			grid[posX, posZ] = GridSectionTile.Filled;
+			grid[posX, posZ] = RoadTile.Filled;
 
 			if (!compound.IsJigsaw())
 			{
@@ -65,14 +66,14 @@ public class NbtRoadTileAssembler
 
 			grid[posX, posZ] = orientation switch
 			{
-				"north_up" => GridSectionTile.North,
-				"south_up" => GridSectionTile.South,
-				"west_up" => GridSectionTile.West,
-				"east_up" => GridSectionTile.East,
+				"north_up" => RoadTile.North,
+				"south_up" => RoadTile.South,
+				"west_up" => RoadTile.West,
+				"east_up" => RoadTile.East,
 				_ => grid[posX, posZ]
 			};
 		}
 
-		return new GridSection {Grid = grid};
+		return new RoadSection {Grid = grid};
 	}
 }

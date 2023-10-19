@@ -1,6 +1,6 @@
 ﻿using fNbt;
 
-namespace Minecraft.City.Datapack.Generator.NbtHandler;
+namespace Minecraft.City.Datapack.Generator.NbtHelpers;
 
 public static class NbtExtensions
 {

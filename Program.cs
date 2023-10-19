@@ -3,7 +3,8 @@ using Minecraft.City.Datapack.Generator.Content.PackMetadata;
 using Minecraft.City.Datapack.Generator.Content.Structure;
 using Minecraft.City.Datapack.Generator.Content.StructureSet;
 using Minecraft.City.Datapack.Generator.Content.TemplatePool;
-using Minecraft.City.Datapack.Generator.NbtHandler;
+using Minecraft.City.Datapack.Generator.NbtHelpers;
+using Minecraft.City.Datapack.Generator.Tiling.Roads;
 using Minecraft.City.Datapack.Generator.Writers;
 using Minecraft.City.Datapack.Generator.Writers.StaticWriters;
 
