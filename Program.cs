@@ -28,7 +28,7 @@ public static class Program
 		
 		Dependencies.Container.Resolve<NbtStaticHandler>().CopyAndFixStaticFiles();
 		
-		Dependencies.Container.Resolve<NbtRoadTileAssembler>().CreatePortions();
+		Dependencies.Container.Resolve<RoadAssembler>().CreatePortions();
 		// var partBuildings = Dependencies.Container.Resolve<NbtPartAssembler>().AssembleBuildings(6);
 		//
 		// var start = new TemplatePool

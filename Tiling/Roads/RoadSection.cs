@@ -1,4 +1,6 @@
-﻿namespace Minecraft.City.Datapack.Generator.Tiling.Roads;
+﻿using System.Security;
+
+namespace Minecraft.City.Datapack.Generator.Tiling.Roads;
 
 public class RoadSection
 {
@@ -47,8 +49,28 @@ public class RoadSection
 		}
 	}
 
+	public bool HasSubSections => Jigsaws.Count > 0;
+
 	public RoadSection TakeSubSection()
 	{
+		var starting = Jigsaws.First();
+
+		if (starting.Type == RoadTileType.North || starting.Type == RoadTileType.South)
+		{
+			var top = GetBoundaryInDirection(starting.X, starting.Z, 0, -1);
+			var bottom = GetBoundaryInDirection(starting.X, starting.Z, 0, 1);
+			
+			Console.WriteLine(top);
+			Console.WriteLine(bottom);
+		}
+
 		return this;
+	}
+
+	private (int x, int z) GetBoundaryInDirection(int startingX, int startingZ, int offsetX, int offsetZ)
+	{
+		var newX = startingX + offsetX;
+		var newZ = startingZ + offsetZ;
+
 	}
 }

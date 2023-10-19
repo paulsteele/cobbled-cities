@@ -4,7 +4,7 @@ using Minecraft.City.Datapack.Generator.NbtHelpers;
 namespace Minecraft.City.Datapack.Generator.Tiling.Roads;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class NbtRoadTileAssembler
+public class RoadAssembler
 {
 	public void CreatePortions()
 	{
@@ -28,12 +28,17 @@ public class NbtRoadTileAssembler
 		var nbt = new NbtFile(fileInfo.FullName);
 		Console.WriteLine(nbt.FileName);
 
-		var grid = ConvertNbtToGrid(nbt);
-		
-		grid.DebugPrint();
+		var road = ToRoadSection(nbt);
+
+		while (road.HasSubSections)
+		{
+			var subSection = road.TakeSubSection();
+			
+			subSection.DebugPrint();
+		}
 	}
 
-	private RoadSection ConvertNbtToGrid(NbtFile nbtFile)
+	private RoadSection ToRoadSection(NbtFile nbtFile)
 	{
 		var blocks = nbtFile.RootTag.Get<NbtList>("blocks");
 		
