@@ -25,19 +25,26 @@ public class NbtRoadTileAssembler
 	private void DeconstructFile(FileSystemInfo fileInfo)
 	{
 		var nbt = new NbtFile(fileInfo.FullName);
+		Console.WriteLine(nbt.FileName);
+
+		var grid = ConvertNbtToGrid(nbt);
 		
-		PrintDebugNbt(nbt);
+		grid.DebugPrint();
 	}
 
-	private void PrintDebugNbt(NbtFile nbtFile)
+	private GridSection ConvertNbtToGrid(NbtFile nbtFile)
 	{
-		Console.WriteLine($"{nbtFile.FileName}");
 		var blocks = nbtFile.RootTag.Get<NbtList>("blocks");
+		
+		if (blocks == null)
+		{
+			return new GridSection();
+		}
 
 		var (x, _, z) = nbtFile.RootTag.GetNbtDimensions();
 
-		var grid = new char[x, z];
-		
+		var grid = new GridSectionTile[x, z];
+
 		foreach (var block in blocks)
 		{
 			if (block is not NbtCompound compound)
@@ -47,7 +54,7 @@ public class NbtRoadTileAssembler
 
 			var (posX, _,  posZ) = compound.GetNbtPosition();
 			
-			grid[posX, posZ] = 'x';
+			grid[posX, posZ] = GridSectionTile.Filled;
 
 			if (!compound.IsJigsaw())
 			{
@@ -58,21 +65,14 @@ public class NbtRoadTileAssembler
 
 			grid[posX, posZ] = orientation switch
 			{
-				"north_up" => '↑',
-				"south_up" => '↓',
-				"west_up" => '←',
-				"east_up" => '→',
+				"north_up" => GridSectionTile.North,
+				"south_up" => GridSectionTile.South,
+				"west_up" => GridSectionTile.West,
+				"east_up" => GridSectionTile.East,
 				_ => grid[posX, posZ]
 			};
 		}
 
-		for (var i = 0; i < grid.GetLength(0); i++)
-		{
-			for (var j = 0; j < grid.GetLength(1); j++)
-			{
-				Console.Write(grid[j, i]);
-			}
-			Console.WriteLine();
-		}
+		return new GridSection {Grid = grid};
 	}
 }
