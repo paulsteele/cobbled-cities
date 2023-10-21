@@ -29,6 +29,8 @@ public class RoadAssembler
 		Console.WriteLine(nbt.FileName);
 
 		var road = ToRoadSection(nbt);
+		
+		road.DebugPrint();
 
 		while (road.HasSubSections)
 		{
