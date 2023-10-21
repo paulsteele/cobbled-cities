@@ -64,8 +64,7 @@ public class RoadAssembler
 
 			var tile = new RoadTile
 			{
-				X = posX,
-				Z = posZ
+				Location = new IlPoint(posX, posZ)
 			};
 			
 			if (compound.IsJigsaw())

@@ -3,6 +3,5 @@
 public class RoadTile
 {
 	public RoadTileType Type { get; set; }
-	public int X { get; set; }
-	public int Z { get; set; }
+	public IlPoint Location { get; set; }
 }

@@ -13,7 +13,7 @@ public class RoadSection
 
 	public void AddTile(RoadTile tile)
 	{
-		Grid[tile.X, tile.Z] = tile;
+		Grid[tile.Location.X, tile.Location.Z] = tile;
 
 		if (tile.Type is RoadTileType.East or RoadTileType.North or RoadTileType.West or RoadTileType.South)
 		{
@@ -44,7 +44,7 @@ public class RoadSection
 	private void RemoveTile(RoadTile tile)
 	{
 		Jigsaws.Remove(tile);
-		Grid[tile.X, tile.Z] = null;
+		Grid[tile.Location.X, tile.Location.Z] = null;
 	}
 	
 	public void DebugPrint()
@@ -90,16 +90,13 @@ public class RoadSection
 		return subsection;
 	}
 
-	private RoadSection CreateSubSection((int minX, int minZ, int maxX, int maxZ) coordinates)
+	private RoadSection CreateSubSection(IlRect rect)
 	{
-		var width = coordinates.maxX - coordinates.minX + 1;
-		var height = coordinates.maxZ - coordinates.minZ + 1;
+		var newSection = new RoadSection(rect.Width + 1, rect.Height + 1);
 
-		var newSection = new RoadSection(width, height);
-
-		for (var x = coordinates.minX; x <= coordinates.maxX; x++)
+		for (var x = rect.MinPoint.X; x <= rect.MaxPoint.X; x++)
 		{
-			for (int z = coordinates.minZ; z <= coordinates.maxZ; z++)
+			for (var z = rect.MinPoint.Z; z <= rect.MaxPoint.Z; z++)
 			{
 				var tile = GetTile(x, z);
 
@@ -111,8 +108,7 @@ public class RoadSection
 				var newTile = new RoadTile
 				{
 					Type = tile.Type,
-					X = tile.X - coordinates.minX,
-					Z = tile.Z - coordinates.minZ
+					Location = tile.Location - rect.MinPoint
 				};
 				
 				newSection.AddTile(newTile);
@@ -123,7 +119,7 @@ public class RoadSection
 		return newSection;
 	}
 
-	private (int minX, int minZ, int maxX, int maxZ) GetRect(RoadTile jigsaw)
+	private IlRect GetRect(RoadTile jigsaw)
 	{
 		// Get pass one delta
 		var (xChange, zChange) = jigsaw.Type.GetOffsetForTileType();
@@ -133,49 +129,13 @@ public class RoadSection
 			throw new ArgumentException("tile was not a jigsaw");
 		}
 
-		(xChange, zChange) = (Math.Abs(xChange), Math.Abs(zChange));
+		var oppositeBoundary = GetBoundaryInDirection(jigsaw.Location.X, jigsaw.Location.Z, xChange, zChange);
 
-		var directionMin = GetBoundaryInDirection(jigsaw.X, jigsaw.Z, -xChange, -zChange);
-		var directionMax = GetBoundaryInDirection(jigsaw.X, jigsaw.Z, xChange, zChange);
+		Console.WriteLine(jigsaw.Location);
+		Console.WriteLine(oppositeBoundary);
 
-		// switch to get cross sections
-		(xChange, zChange) = (zChange, xChange);
-
-		var directionMinCrossMin = GetBoundaryInDirection(directionMin.x, directionMin.z, -xChange, -zChange);
-		var directionMinCrossMax = GetBoundaryInDirection(directionMin.x, directionMin.z, xChange, zChange);
-		
-		var directionMaxCrossMin = GetBoundaryInDirection(directionMax.x, directionMax.z, -xChange, -zChange);
-		var directionMaxCrossMax = GetBoundaryInDirection(directionMax.x, directionMax.z, xChange, zChange);
-		
-		//switch back to make logic more "intuitive"
-		(xChange, zChange) = (zChange, xChange);
-
-		var minX = 0;
-		var minZ = 0;
-		var maxX = 0;
-		var maxZ = 0;
-
-		// horizontal
-		if (xChange > 0)
-		{
-			minX = directionMin.x;
-			maxX = directionMax.x;
-
-			minZ = Math.Max(directionMinCrossMin.z, directionMaxCrossMin.z);
-			maxZ = Math.Min(directionMinCrossMax.z, directionMaxCrossMax.z);
-		}
-
-		// vertical
-		if (zChange > 0)
-		{
-			minZ = directionMin.z;
-			maxZ = directionMax.z;
-
-			minX = Math.Max(directionMinCrossMin.x, directionMaxCrossMin.x);
-			maxX = Math.Min(directionMinCrossMax.x, directionMaxCrossMax.x);
-		}
-		
-		return (minX, minZ, maxX, maxZ);
+		throw new Exception("break");
+		// return new (minX, minZ, maxX, maxZ);
 	}
 
 	private (int x, int z) GetBoundaryInDirection(int startingX, int startingZ, int offsetX, int offsetZ)
