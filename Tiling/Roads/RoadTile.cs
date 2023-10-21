@@ -6,13 +6,3 @@ public class RoadTile
 	public int X { get; set; }
 	public int Z { get; set; }
 }
-
-public enum RoadTileType
-{
-	Empty,
-	Filled,
-	North,
-	East,
-	South,
-	West
-}

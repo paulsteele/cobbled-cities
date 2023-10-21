@@ -126,26 +126,14 @@ public class RoadSection
 	private (int minX, int minZ, int maxX, int maxZ) GetRect(RoadTile jigsaw)
 	{
 		// Get pass one delta
-		var xChange = 0;
-		var zChange = 0;
+		var (xChange, zChange) = jigsaw.Type.GetOffsetForTileType();
 
-		switch (jigsaw.Type)
+		if (xChange == zChange)
 		{
-			case RoadTileType.North:
-			case RoadTileType.South:
-				zChange = 1;
-				break;
-			case RoadTileType.East:
-			case RoadTileType.West:
-				xChange = 1;
-				break;
-			case RoadTileType.Empty:
-				break;
-			case RoadTileType.Filled:
-				break;
-			default:
-				throw new ArgumentOutOfRangeException();
+			throw new ArgumentException("tile was not a jigsaw");
 		}
+
+		(xChange, zChange) = (Math.Abs(xChange), Math.Abs(zChange));
 
 		var directionMin = GetBoundaryInDirection(jigsaw.X, jigsaw.Z, -xChange, -zChange);
 		var directionMax = GetBoundaryInDirection(jigsaw.X, jigsaw.Z, xChange, zChange);
@@ -192,6 +180,7 @@ public class RoadSection
 
 	private (int x, int z) GetBoundaryInDirection(int startingX, int startingZ, int offsetX, int offsetZ)
 	{
+		var allowedToTakeJigsaw = true;
 		while (true)
 		{
 			var newX = startingX + offsetX;
@@ -204,9 +193,19 @@ public class RoadSection
 				return (startingX, startingZ);
 			}
 
-			if (candidateTile.Type != RoadTileType.Filled)
+			switch (candidateTile.Type)
 			{
-				return (startingX, startingZ);
+				case RoadTileType.North when allowedToTakeJigsaw:
+				case RoadTileType.East when allowedToTakeJigsaw:
+				case RoadTileType.South when allowedToTakeJigsaw:
+				case RoadTileType.West when allowedToTakeJigsaw:
+					allowedToTakeJigsaw = false;
+					break;
+				case RoadTileType.Filled:
+					break;
+				case RoadTileType.Empty:
+				default:
+					return (startingX, startingZ);
 			}
 
 			startingX = newX;
