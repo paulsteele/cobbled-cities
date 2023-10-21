@@ -1,4 +1,6 @@
-﻿namespace Minecraft.City.Datapack.Generator.Tiling.Roads;
+﻿using System.Reflection.Metadata;
+
+namespace Minecraft.City.Datapack.Generator.Tiling.Roads;
 
 public class RoadSection
 {
@@ -129,16 +131,51 @@ public class RoadSection
 			throw new ArgumentException("tile was not a jigsaw");
 		}
 
-		var oppositeBoundary = GetBoundaryInDirection(jigsaw.Location.X, jigsaw.Location.Z, xChange, zChange);
+		var path = new List<IlPoint>();
 
-		Console.WriteLine(jigsaw.Location);
-		Console.WriteLine(oppositeBoundary);
+		var oppositeBoundaryCandidate1 = GetBoundaryInDirection(jigsaw.Location.X, jigsaw.Location.Z, xChange, zChange, path);
+		var oppositeBoundaryCandidate2 = GetBoundaryInDirection(jigsaw.Location.X, jigsaw.Location.Z, -xChange, -zChange, path);
 
-		throw new Exception("break");
-		// return new (minX, minZ, maxX, maxZ);
+		var oppositeBoundary = oppositeBoundaryCandidate1.Equals(jigsaw.Location)
+			? oppositeBoundaryCandidate2
+			: oppositeBoundaryCandidate1;
+		
+		path.Add(oppositeBoundary);
+
+		var crossXChange = Math.Abs(zChange);
+		var crossZChange = Math.Abs(xChange);
+
+		var mins = path.Select(i => GetBoundaryInDirection(i.X, i.Z, -crossXChange, -crossZChange));
+		var maxes = path.Select(i => GetBoundaryInDirection(i.X, i.Z, crossXChange, crossZChange));
+
+		var minX = 0;
+		var minZ = 0;
+		var maxX = 0;
+		var maxZ = 0;
+		
+		//horizontal
+		if (xChange != 0)
+		{
+			minX = Math.Min(jigsaw.Location.X, oppositeBoundary.X);
+			maxX = Math.Max(jigsaw.Location.X, oppositeBoundary.X);
+
+			minZ = mins.Max(i => i.Z);
+			maxZ = maxes.Min(i => i.X);
+		}
+		//vertical
+		else if (zChange != 0)
+		{
+			minZ = Math.Min(jigsaw.Location.Z, oppositeBoundary.Z);
+			maxZ = Math.Max(jigsaw.Location.Z, oppositeBoundary.Z);
+
+			minX = mins.Max(i => i.X);
+			maxX = maxes.Min(i => i.X);
+		}
+
+		return new IlRect(minX, minZ, maxX, maxZ);
 	}
 
-	private (int x, int z) GetBoundaryInDirection(int startingX, int startingZ, int offsetX, int offsetZ)
+	private IlPoint GetBoundaryInDirection(int startingX, int startingZ, int offsetX, int offsetZ, ICollection<IlPoint>? trace = null)
 	{
 		var allowedToTakeJigsaw = true;
 		while (true)
@@ -150,7 +187,7 @@ public class RoadSection
 
 			if (candidateTile == null)
 			{
-				return (startingX, startingZ);
+				return new IlPoint(startingX, startingZ);
 			}
 
 			switch (candidateTile.Type)
@@ -165,8 +202,10 @@ public class RoadSection
 					break;
 				case RoadTileType.Empty:
 				default:
-					return (startingX, startingZ);
+					return new IlPoint(startingX, startingZ);
 			}
+			
+			trace?.Add(new IlPoint(startingX, startingZ));
 
 			startingX = newX;
 			startingZ = newZ;
