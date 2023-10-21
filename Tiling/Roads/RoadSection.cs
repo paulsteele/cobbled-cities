@@ -160,7 +160,7 @@ public class RoadSection
 			maxX = Math.Max(jigsaw.Location.X, oppositeBoundary.X);
 
 			minZ = mins.Max(i => i.Z);
-			maxZ = maxes.Min(i => i.X);
+			maxZ = maxes.Min(i => i.Z);
 		}
 		//vertical
 		else if (zChange != 0)
