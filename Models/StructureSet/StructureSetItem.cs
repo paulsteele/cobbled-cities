@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Minecraft.City.Datapack.Generator.Content.StructureSet;
+namespace Minecraft.City.Datapack.Generator.Models.StructureSet;
 
 public class StructureSetItem
 {
 	// ReSharper disable once SuggestBaseTypeForParameterInConstructor
-	public StructureSetItem(Structure.Structure structure, int weight)
+	public StructureSetItem(Models.Structure.Structure structure, int weight)
 	{
 		Structure = $"poke-cities:{structure.FileName}";
 		Weight = weight;

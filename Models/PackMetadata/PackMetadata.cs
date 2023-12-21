@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Minecraft.City.Datapack.Generator.Writers;
 
-namespace Minecraft.City.Datapack.Generator.Content.PackMetadata;
+namespace Minecraft.City.Datapack.Generator.Models.PackMetadata;
 
 public class PackMetadata : IWriteableData
 {

@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Minecraft.City.Datapack.Generator.Writers;
 
-namespace Minecraft.City.Datapack.Generator.Content.TemplatePool;
+namespace Minecraft.City.Datapack.Generator.Models.TemplatePool;
 
 public class TemplatePool : IWriteableData
 {

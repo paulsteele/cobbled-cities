@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Minecraft.City.Datapack.Generator.Content.PackMetadata;
+namespace Minecraft.City.Datapack.Generator.Models.PackMetadata;
 
 public class Pack
 {

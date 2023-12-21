@@ -1,10 +1,7 @@
 ﻿using Autofac;
-using Minecraft.City.Datapack.Generator.Content.PackMetadata;
-using Minecraft.City.Datapack.Generator.Content.Structure;
-using Minecraft.City.Datapack.Generator.Content.StructureSet;
-using Minecraft.City.Datapack.Generator.Content.TemplatePool;
-using Minecraft.City.Datapack.Generator.NbtHelpers;
-using Minecraft.City.Datapack.Generator.Tiling.Roads;
+using Minecraft.City.Datapack.Generator.Builder.Roads;
+using Minecraft.City.Datapack.Generator.Builder.Static;
+using Minecraft.City.Datapack.Generator.Models.PackMetadata;
 using Minecraft.City.Datapack.Generator.Writers;
 using Minecraft.City.Datapack.Generator.Writers.StaticWriters;
 
@@ -26,9 +23,8 @@ public static class Program
 
 		var packMetadata = Dependencies.Container.Resolve<PackMetadata>();
 		
-		Dependencies.Container.Resolve<NbtStaticHandler>().CopyAndFixStaticFiles();
-		
-		Dependencies.Container.Resolve<RoadAssembler>().CreatePortions();
+		Dependencies.Container.Resolve<StaticFileAssembler>().Assemble();
+		Dependencies.Container.Resolve<RoadAssembler>().Assemble();
 		// var partBuildings = Dependencies.Container.Resolve<NbtPartAssembler>().AssembleBuildings(6);
 		//
 		// var start = new TemplatePool

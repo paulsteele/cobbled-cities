@@ -1,6 +1,6 @@
 ﻿using fNbt;
 
-namespace Minecraft.City.Datapack.Generator.Tiling.Buildings;
+namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
 
 public class NbtFileFixer
 {

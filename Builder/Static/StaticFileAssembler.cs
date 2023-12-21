@@ -1,18 +1,20 @@
 ﻿using fNbt;
-using Minecraft.City.Datapack.Generator.Tiling.Buildings;
+using Minecraft.City.Datapack.Generator.Builder;
+using Minecraft.City.Datapack.Generator.Builder.Buildings;
 
-namespace Minecraft.City.Datapack.Generator.NbtHelpers;
+namespace Minecraft.City.Datapack.Generator.Builder.Static;
 
-public class NbtStaticHandler
+// ReSharper disable once ClassNeverInstantiated.Global
+public class StaticFileAssembler : IAssembler
 {
-	private NbtFileFixer _fileFixer;
+	private readonly NbtFileFixer _fileFixer;
 
-	public NbtStaticHandler(NbtFileFixer fileFixer)
+	public StaticFileAssembler(NbtFileFixer fileFixer)
 	{
 		_fileFixer = fileFixer;
 	}
 
-	public void CopyAndFixStaticFiles()
+	public void Assemble()
 	{
 		var roads = new DirectoryInfo("../../../nbts/roads");
 		var buildings = new DirectoryInfo("../../../nbts/buildings");

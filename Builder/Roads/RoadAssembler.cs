@@ -1,12 +1,11 @@
 ﻿using fNbt;
-using Minecraft.City.Datapack.Generator.NbtHelpers;
 
-namespace Minecraft.City.Datapack.Generator.Tiling.Roads;
+namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public class RoadAssembler
 {
-	public void CreatePortions()
+	public void Assemble()
 	{
 		var centers = new DirectoryInfo("../../../nbts/centers");
 		

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Minecraft.City.Datapack.Generator.Content.StructureSet;
+namespace Minecraft.City.Datapack.Generator.Models.StructureSet;
 
 public class StructureSetPlacement
 {

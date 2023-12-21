@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Minecraft.City.Datapack.Generator.Writers;
 
-namespace Minecraft.City.Datapack.Generator.Content.Structure;
+namespace Minecraft.City.Datapack.Generator.Models.Structure;
 
 public class Structure : IWriteableData
 {

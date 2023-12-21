@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Minecraft.City.Datapack.Generator.Content.Structure;
+namespace Minecraft.City.Datapack.Generator.Models.Structure;
 
 public class StructureStartHeight
 {

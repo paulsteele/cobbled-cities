@@ -1,6 +1,6 @@
 ﻿using System.Reflection.Metadata;
 
-namespace Minecraft.City.Datapack.Generator.Tiling.Roads;
+namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
 public class RoadSection
 {

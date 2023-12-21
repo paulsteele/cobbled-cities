@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Minecraft.City.Datapack.Generator.Content.TemplatePool;
+namespace Minecraft.City.Datapack.Generator.Models.TemplatePool;
 
 public class TemplatePoolElementWeight
 {
