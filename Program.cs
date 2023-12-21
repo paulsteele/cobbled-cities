@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Minecraft.City.Datapack.Generator.Builder;
 using Minecraft.City.Datapack.Generator.Builder.Roads;
 using Minecraft.City.Datapack.Generator.Builder.Static;
 using Minecraft.City.Datapack.Generator.Models.PackMetadata;
@@ -23,8 +24,11 @@ public static class Program
 
 		var packMetadata = Dependencies.Container.Resolve<PackMetadata>();
 		
-		Dependencies.Container.Resolve<StaticFileAssembler>().Assemble();
-		Dependencies.Container.Resolve<RoadAssembler>().Assemble();
+		foreach (var assembler in Dependencies.Container.Resolve<IEnumerable<IAssembler>>())
+		{
+			assembler.Assemble();
+		}
+		
 		// var partBuildings = Dependencies.Container.Resolve<NbtPartAssembler>().AssembleBuildings(6);
 		//
 		// var start = new TemplatePool

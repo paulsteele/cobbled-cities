@@ -1,9 +1,10 @@
 ﻿using fNbt;
+using Minecraft.City.Datapack.Generator.Models.IlNodes;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class RoadAssembler
+public class RoadAssembler : IAssembler
 {
 	public void Assemble()
 	{

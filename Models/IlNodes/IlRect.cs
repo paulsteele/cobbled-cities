@@ -1,4 +1,4 @@
-﻿namespace Minecraft.City.Datapack.Generator.Builder.Roads;
+﻿namespace Minecraft.City.Datapack.Generator.Models.IlNodes;
 
 public class IlRect
 {
