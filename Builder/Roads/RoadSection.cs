@@ -1,80 +1,122 @@
-﻿using System.Reflection.Metadata;
+﻿using fNbt;
 using Minecraft.City.Datapack.Generator.Models.IlNodes;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
 public class RoadSection
 {
-	private RoadTile?[,] Grid { get; }
+	private readonly NbtCompound _rootTag;
+	private Dictionary<IlPoint, NbtCompound> Jigsaws { get; } = new();
 
-	private List<RoadTile> Jigsaws { get; } = new();
+	private int MaxX => _rootTag.GetNbtDimensions().x;
+	private int MaxY => _rootTag.GetNbtDimensions().y;
+	private int MaxZ => _rootTag.GetNbtDimensions().z;
 
-	public RoadSection(int x, int z)
+	private readonly bool[,] _hasTile;
+
+	public RoadSection(NbtCompound rootTag, IlRect? boundingBox = null)
 	{
-		Grid = new RoadTile[x, z];
-	}
-
-	public void AddTile(RoadTile tile)
-	{
-		Grid[tile.Location.X, tile.Location.Z] = tile;
-
-		if (tile.Type is RoadTileType.East or RoadTileType.North or RoadTileType.West or RoadTileType.South)
+		_rootTag = (NbtCompound) rootTag.Clone();
+		
+		var blocks = _rootTag.Get<NbtList>("blocks");
+		
+		if (blocks == null)
 		{
-			Jigsaws.Add(tile);
+			throw new ArgumentException($"{nameof(_rootTag)} does not have any blocks");
+		}
+
+		if (boundingBox != null)
+		{
+			_rootTag.SetNbtDimensions(boundingBox.Width + 1, MaxY, boundingBox.Height + 1);
+
+			var tempBlocks = blocks
+				.Where(b => b is NbtCompound)
+				.Cast<NbtCompound>()
+				.Where(b =>
+				{
+					var pos = b.GetNbtPosition();
+					return boundingBox.PointInside(pos.x, pos.z);
+				}).ToList();
+
+			foreach (var block in tempBlocks)
+			{
+				var pos = block.GetNbtPosition();
+				block.SetNbtPosition(pos.x - boundingBox.MinPoint.X, pos.y, pos.z - boundingBox.MinPoint.Z);
+			}
+
+			var newList = new NbtList("blocks");
+			newList.AddRange(tempBlocks);
+
+			_rootTag["blocks"] = newList;
+			blocks = newList;
+		}
+		
+		_hasTile = new bool[MaxX, MaxZ];
+		
+		foreach (var block in blocks)
+		{
+			if (block is not NbtCompound compound)
+			{
+				continue;
+			}
+
+			var (posX, _,  posZ) = compound.GetNbtPosition();
+
+			_hasTile[posX, posZ] = true;
+
+			if (!compound.IsJigsaw())
+			{
+				continue;
+			}
+				
+			Jigsaws.Add(new IlPoint(posX, posZ), compound);
 		}
 	}
 
-	private RoadTile? GetTile(int x, int z)
+	private bool HasTile(int x, int z)
 	{
 		if (x < 0 || z < 0)
 		{
-			return null;
+			return false;
 		}
 
-		if (x >= Grid.GetLength(0))
+		if (x >= MaxX || z >= MaxZ)
 		{
-			return null;
+			return false;
 		}
 
-		if (z >= Grid.GetLength(1))
-		{
-			return null;
-		}
-
-		return Grid[x, z];
+		return _hasTile[x, z];
 	}
 
-	private void RemoveTile(RoadTile tile)
-	{
-		Jigsaws.Remove(tile);
-		Grid[tile.Location.X, tile.Location.Z] = null;
-	}
-	
 	public void DebugPrint()
 	{
 		Console.WriteLine("======================================");
-		for (var z = 0; z < Grid.GetLength(1); z++)
+		for (var z = 0; z < MaxZ; z++)
 		{
-			for (var x = 0; x < Grid.GetLength(0); x++)
+			for (var x = 0; x < MaxX; x++)
 			{
-				var tile = GetTile(x, z);
-
-				if (tile == null)
+				if (!HasTile(x, z))
 				{
 					Console.Write(' ');
 					continue;
 				}
 
-				var display = tile.Type switch
+				if (Jigsaws.TryGetValue(new IlPoint(x, z), out var jigsaw))
 				{
-					RoadTileType.Filled => 'x',
-					RoadTileType.North => '↑',
-					RoadTileType.East => '→',
-					RoadTileType.South => '↓',
-					RoadTileType.West => '←',
-					_ => ' '
-				};
-				Console.Write(display);
+					var display = jigsaw.GetJigsawTileType(_rootTag) switch
+					{
+						JigsawTileType.North => '↑',
+						JigsawTileType.East => '→',
+						JigsawTileType.South => '↓',
+						JigsawTileType.West => '←',
+						_ => throw new ArgumentException($"{nameof(JigsawTileType)}: {jigsaw.GetJigsawTileType(_rootTag)} unkown")
+					};
+					Console.Write(display);
+					
+					continue;
+				}
+				Console.Write("x");
+
 			}
 			Console.WriteLine();
 		}
@@ -84,48 +126,31 @@ public class RoadSection
 
 	public RoadSection TakeSubSection()
 	{
-		var first = Jigsaws.First();
+		var first = Jigsaws.First().Value;
 
 		var coordinates = GetRect(first);
 
-		var subsection = CreateSubSection(coordinates);
+		var subsection = new RoadSection(_rootTag, coordinates);
+
+		var toRemove = Jigsaws
+			.Where(j => coordinates.PointInside(j.Key))
+			.Select(j => j.Key)
+			.ToList();
+
+		foreach (var point in toRemove)
+		{
+			Jigsaws.Remove(point);
+		}
+		
+		coordinates.ForEach((x, z) => _hasTile[x, z] = false);
 
 		return subsection;
 	}
 
-	private RoadSection CreateSubSection(IlRect rect)
-	{
-		var newSection = new RoadSection(rect.Width + 1, rect.Height + 1);
-
-		for (var x = rect.MinPoint.X; x <= rect.MaxPoint.X; x++)
-		{
-			for (var z = rect.MinPoint.Z; z <= rect.MaxPoint.Z; z++)
-			{
-				var tile = GetTile(x, z);
-
-				if (tile == null)
-				{
-					continue;
-				}
-				
-				var newTile = new RoadTile
-				{
-					Type = tile.Type,
-					Location = tile.Location - rect.MinPoint
-				};
-				
-				newSection.AddTile(newTile);
-				RemoveTile(tile);
-			}
-		}
-
-		return newSection;
-	}
-
-	private IlRect GetRect(RoadTile jigsaw)
+	private IlRect GetRect(NbtCompound jigsaw)
 	{
 		// Get pass one delta
-		var (xChange, zChange) = jigsaw.Type.GetOffsetForTileType();
+		var (xChange, zChange) = jigsaw.GetJigsawTileType(_rootTag).GetOffsetForTileType();
 
 		if (xChange == zChange)
 		{
@@ -134,10 +159,12 @@ public class RoadSection
 
 		var path = new List<IlPoint>();
 
-		var oppositeBoundaryCandidate1 = GetBoundaryInDirection(jigsaw.Location.X, jigsaw.Location.Z, xChange, zChange, path);
-		var oppositeBoundaryCandidate2 = GetBoundaryInDirection(jigsaw.Location.X, jigsaw.Location.Z, -xChange, -zChange, path);
+		var location = jigsaw.GetNbtPosition();
 
-		var oppositeBoundary = oppositeBoundaryCandidate1.Equals(jigsaw.Location)
+		var oppositeBoundaryCandidate1 = GetBoundaryInDirection(location.x, location.z, xChange, zChange, path);
+		var oppositeBoundaryCandidate2 = GetBoundaryInDirection(location.x, location.z, -xChange, -zChange, path);
+
+		var oppositeBoundary = oppositeBoundaryCandidate1.Equals(new IlPoint(location.x, location.z))
 			? oppositeBoundaryCandidate2
 			: oppositeBoundaryCandidate1;
 		
@@ -157,8 +184,8 @@ public class RoadSection
 		//horizontal
 		if (xChange != 0)
 		{
-			minX = Math.Min(jigsaw.Location.X, oppositeBoundary.X);
-			maxX = Math.Max(jigsaw.Location.X, oppositeBoundary.X);
+			minX = Math.Min(location.x, oppositeBoundary.X);
+			maxX = Math.Max(location.x, oppositeBoundary.X);
 
 			minZ = mins.Max(i => i.Z);
 			maxZ = maxes.Min(i => i.Z);
@@ -166,8 +193,8 @@ public class RoadSection
 		//vertical
 		else if (zChange != 0)
 		{
-			minZ = Math.Min(jigsaw.Location.Z, oppositeBoundary.Z);
-			maxZ = Math.Max(jigsaw.Location.Z, oppositeBoundary.Z);
+			minZ = Math.Min(location.z, oppositeBoundary.Z);
+			maxZ = Math.Max(location.z, oppositeBoundary.Z);
 
 			minX = mins.Max(i => i.X);
 			maxX = maxes.Min(i => i.X);
@@ -184,28 +211,26 @@ public class RoadSection
 			var newX = startingX + offsetX;
 			var newZ = startingZ + offsetZ;
 
-			var candidateTile = GetTile(newX, newZ);
-
-			if (candidateTile == null)
+			if (!HasTile(newX, newZ))
 			{
 				return new IlPoint(startingX, startingZ);
 			}
 
-			switch (candidateTile.Type)
+			if (Jigsaws.TryGetValue(new IlPoint(newX, newZ), out var jigsaw))
 			{
-				case RoadTileType.North when allowedToTakeJigsaw:
-				case RoadTileType.East when allowedToTakeJigsaw:
-				case RoadTileType.South when allowedToTakeJigsaw:
-				case RoadTileType.West when allowedToTakeJigsaw:
-					allowedToTakeJigsaw = false;
-					break;
-				case RoadTileType.Filled:
-					break;
-				case RoadTileType.Empty:
-				default:
-					return new IlPoint(startingX, startingZ);
+				switch (jigsaw.GetJigsawTileType(_rootTag))
+				{
+					case JigsawTileType.North when allowedToTakeJigsaw:
+					case JigsawTileType.East when allowedToTakeJigsaw:
+					case JigsawTileType.South when allowedToTakeJigsaw:
+					case JigsawTileType.West when allowedToTakeJigsaw:
+						allowedToTakeJigsaw = false;
+						break;
+					default:
+						return new IlPoint(startingX, startingZ);
+				}
 			}
-			
+
 			trace?.Add(new IlPoint(startingX, startingZ));
 
 			startingX = newX;
