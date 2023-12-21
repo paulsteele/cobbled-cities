@@ -1,2 +1,2 @@
-# schematic-to-lost-cities
-convert .schematic files into lost cities buildings and parts
+# Minecraft City Generator
+convert .schematic files into minecraft jigsaw datapacks
