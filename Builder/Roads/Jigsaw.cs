@@ -5,7 +5,7 @@ namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
 public class Jigsaw
 {  
-	public JigsawTileType TileType { get; set; }
+	public JigsawTileType TileType { get; private set; }
 	public IlPoint Location { get; }
 	public IlPoint OriginalLocation { get; set; }
 	public IlPoint? PointingToLocation { get; set; }
@@ -16,5 +16,11 @@ public class Jigsaw
 		Compound = compound;
 		TileType = compound.GetJigsawTileType(rootTag);
 		Location = location;
+	}
+
+	public void Flip(Dictionary<JigsawTileType, int> states)
+	{
+		TileType = TileType.FlippedTileType();
+		Compound.SetState(states[TileType]);
 	}
 }

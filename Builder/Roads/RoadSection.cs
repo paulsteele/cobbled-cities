@@ -203,8 +203,7 @@ public class RoadSection
 		var states = _rootTag.GetTypeStateIds();
 		foreach (var jigsaw in Jigsaws.Values.Where(jigsaw => jigsaw.PointingToLocation == null))
 		{
-			jigsaw.TileType = jigsaw.TileType.FlippedTileType();
-			jigsaw.Compound.SetState(states[jigsaw.TileType]);
+			jigsaw.Flip(states);
 		}
 	}
 
