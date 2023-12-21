@@ -6,7 +6,7 @@ namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 public class RoadSection
 {
 	private readonly NbtCompound _rootTag;
-	private Dictionary<IlPoint, NbtCompound> Jigsaws { get; } = new();
+	private Dictionary<IlPoint, Jigsaw> Jigsaws { get; } = new();
 
 	private int MaxX => _rootTag.GetNbtDimensions().x;
 	private int MaxY => _rootTag.GetNbtDimensions().y;
@@ -68,8 +68,9 @@ public class RoadSection
 			{
 				continue;
 			}
-				
-			Jigsaws.Add(new IlPoint(posX, posZ), compound);
+
+			var ilPoint = new IlPoint(posX, posZ);
+			Jigsaws.Add(ilPoint, new Jigsaw(compound, _rootTag, ilPoint));
 		}
 	}
 
@@ -103,13 +104,13 @@ public class RoadSection
 
 				if (Jigsaws.TryGetValue(new IlPoint(x, z), out var jigsaw))
 				{
-					var display = jigsaw.GetJigsawTileType(_rootTag) switch
+					var display = jigsaw.TileType switch
 					{
 						JigsawTileType.North => '↑',
 						JigsawTileType.East => '→',
 						JigsawTileType.South => '↓',
 						JigsawTileType.West => '←',
-						_ => throw new ArgumentException($"{nameof(JigsawTileType)}: {jigsaw.GetJigsawTileType(_rootTag)} unkown")
+						_ => throw new ArgumentException($"{nameof(JigsawTileType)}: {jigsaw.TileType} unknown")
 					};
 					Console.Write(display);
 					
@@ -128,7 +129,7 @@ public class RoadSection
 	{
 		var first = Jigsaws.First().Value;
 
-		var coordinates = GetRect(first);
+		var coordinates = GetRect(first.Compound);
 
 		var subsection = new RoadSection(_rootTag, coordinates);
 
@@ -218,7 +219,7 @@ public class RoadSection
 
 			if (Jigsaws.TryGetValue(new IlPoint(newX, newZ), out var jigsaw))
 			{
-				switch (jigsaw.GetJigsawTileType(_rootTag))
+				switch (jigsaw.TileType)
 				{
 					case JigsawTileType.North when allowedToTakeJigsaw:
 					case JigsawTileType.East when allowedToTakeJigsaw:
