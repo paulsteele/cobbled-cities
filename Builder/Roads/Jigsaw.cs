@@ -7,6 +7,7 @@ public class Jigsaw
 {  
 	public JigsawTileType TileType { get; }
 	public IlPoint Location { get; }
+	public IlPoint OriginalLocation { get; set; }
 	public IlPoint? PointingToLocation { get; set; }
 	public NbtCompound Compound { get; }
 

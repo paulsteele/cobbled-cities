@@ -31,11 +31,14 @@ public class RoadAssembler : IAssembler
 		
 		road.DebugPrint();
 
+		var subSections = new List<RoadSection>();
 		while (road.HasSubSections)
 		{
 			var subSection = road.TakeSubSection();
 			
 			subSection.DebugPrint();
+			
+			subSections.Add(subSection);
 		}
 	}
 }

@@ -14,7 +14,7 @@ public class RoadSection
 
 	private readonly bool[,] _hasTile;
 
-	public RoadSection(NbtCompound rootTag, IlRect? boundingBox = null)
+	public RoadSection(NbtCompound rootTag, IlRect? boundingBox = null, Dictionary<IlPoint, Jigsaw>? rootJigsaws = null)
 	{
 		_rootTag = (NbtCompound) rootTag.Clone();
 		
@@ -25,33 +25,45 @@ public class RoadSection
 			throw new ArgumentException($"{nameof(_rootTag)} does not have any blocks");
 		}
 
-		if (boundingBox != null)
+		blocks = InitBoundingBox(boundingBox, blocks);
+		_hasTile = InitBlocks(blocks);
+		InitJigsaws(rootJigsaws, boundingBox);
+	}
+
+	private NbtList InitBoundingBox(IlRect? boundingBox, NbtList blocks)
+	{
+		if (boundingBox == null)
 		{
-			_rootTag.SetNbtDimensions(boundingBox.Width + 1, MaxY, boundingBox.Height + 1);
-
-			var tempBlocks = blocks
-				.Where(b => b is NbtCompound)
-				.Cast<NbtCompound>()
-				.Where(b =>
-				{
-					var pos = b.GetNbtPosition();
-					return boundingBox.PointInside(pos.x, pos.z);
-				}).ToList();
-
-			foreach (var block in tempBlocks)
-			{
-				var pos = block.GetNbtPosition();
-				block.SetNbtPosition(pos.x - boundingBox.MinPoint.X, pos.y, pos.z - boundingBox.MinPoint.Z);
-			}
-
-			var newList = new NbtList("blocks");
-			newList.AddRange(tempBlocks);
-
-			_rootTag["blocks"] = newList;
-			blocks = newList;
+			return blocks;
 		}
 		
-		_hasTile = new bool[MaxX, MaxZ];
+		_rootTag.SetNbtDimensions(boundingBox.Width + 1, MaxY, boundingBox.Height + 1);
+
+		var tempBlocks = blocks
+			.Where(b => b is NbtCompound)
+			.Cast<NbtCompound>()
+			.Where(b =>
+			{
+				var pos = b.GetNbtPosition();
+				return boundingBox.PointInside(pos.x, pos.z);
+			}).ToList();
+
+		foreach (var block in tempBlocks)
+		{
+			var pos = block.GetNbtPosition();
+			block.SetNbtPosition(pos.x - boundingBox.MinPoint.X, pos.y, pos.z - boundingBox.MinPoint.Z);
+		}
+
+		var newList = new NbtList("blocks");
+		newList.AddRange(tempBlocks);
+
+		_rootTag["blocks"] = newList;
+		return newList;
+	}
+
+	private bool[,] InitBlocks(NbtList blocks)
+	{
+		var tiles = new bool[MaxX, MaxZ];
 		
 		foreach (var block in blocks)
 		{
@@ -62,7 +74,7 @@ public class RoadSection
 
 			var (posX, _,  posZ) = compound.GetNbtPosition();
 
-			_hasTile[posX, posZ] = true;
+			tiles[posX, posZ] = true;
 
 			if (!compound.IsJigsaw())
 			{
@@ -71,6 +83,44 @@ public class RoadSection
 
 			var ilPoint = new IlPoint(posX, posZ);
 			Jigsaws.Add(ilPoint, new Jigsaw(compound, _rootTag, ilPoint));
+		}
+
+		return tiles;
+	}
+
+	private void InitJigsaws(Dictionary<IlPoint, Jigsaw>? rootJigsaws, IlRect? boundingBox)
+	{
+		if (rootJigsaws == null)
+		{
+			foreach (var jigsaw in Jigsaws.Values)
+			{
+				var point = jigsaw.TileType.GetOffsetForTileType();
+				var candidateLocation = new IlPoint(jigsaw.Location.X + point.x, jigsaw.Location.Z + point.z);
+
+				if (Jigsaws.ContainsKey(candidateLocation))
+				{
+					jigsaw.PointingToLocation = candidateLocation;
+				}
+
+			}
+		}
+		else
+		{
+			foreach (var jigsawsValue in Jigsaws.Values)
+			{
+				if (boundingBox != null)
+				{
+					jigsawsValue.OriginalLocation = new IlPoint(
+						jigsawsValue.Location.X + boundingBox.MinPoint.X,
+						jigsawsValue.Location.Z + boundingBox.MinPoint.Z
+					);
+				}
+				
+				if (rootJigsaws.TryGetValue(jigsawsValue.OriginalLocation, out var rootJigsaw))
+				{
+					jigsawsValue.PointingToLocation = rootJigsaw.PointingToLocation;
+				}
+			}
 		}
 	}
 
@@ -131,7 +181,7 @@ public class RoadSection
 
 		var coordinates = GetRect(first.Compound);
 
-		var subsection = new RoadSection(_rootTag, coordinates);
+		var subsection = new RoadSection(_rootTag, coordinates, Jigsaws);
 
 		var toRemove = Jigsaws
 			.Where(j => coordinates.PointInside(j.Key))

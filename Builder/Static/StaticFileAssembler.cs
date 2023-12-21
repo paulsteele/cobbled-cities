@@ -16,13 +16,11 @@ public class StaticFileAssembler : IAssembler
 
 	public void Assemble()
 	{
-		var roads = new DirectoryInfo("../../../nbts/roads");
 		var buildings = new DirectoryInfo("../../../nbts/buildings");
 
-		var roadFiles = roads.GetFiles("*.*", SearchOption.AllDirectories);
 		var buildingFiles = buildings.GetFiles("*.*", SearchOption.AllDirectories);
 
-		var staticFiles = roadFiles.Concat(buildingFiles);
+		var staticFiles = buildingFiles;
 
 		foreach (var file in staticFiles)
 		{
