@@ -104,8 +104,13 @@ public static class NbtExtensions
 
 		return ret?.Value ?? int.MinValue;
 	}
+	
+	public static void SetState(this NbtCompound compound, int value)
+	{
+		compound["state"] = new NbtInt("state", value);
+	}
 
-	private static NbtList GetPalette(this NbtCompound compound)
+	public static NbtList GetPalette(this NbtCompound compound)
 	{
 		return compound.Get<NbtList>("palette") ?? new NbtList();
 	}

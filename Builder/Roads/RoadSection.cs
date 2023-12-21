@@ -198,6 +198,16 @@ public class RoadSection
 		return subsection;
 	}
 
+	public void FlipPointedToJigsaws()
+	{
+		var states = _rootTag.GetTypeStateIds();
+		foreach (var jigsaw in Jigsaws.Values.Where(jigsaw => jigsaw.PointingToLocation == null))
+		{
+			jigsaw.TileType = jigsaw.TileType.FlippedTileType();
+			jigsaw.Compound.SetState(states[jigsaw.TileType]);
+		}
+	}
+
 	private IlRect GetRect(NbtCompound jigsaw)
 	{
 		// Get pass one delta

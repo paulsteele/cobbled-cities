@@ -32,13 +32,21 @@ public class RoadAssembler : IAssembler
 		road.DebugPrint();
 
 		var subSections = new List<RoadSection>();
+		
 		while (road.HasSubSections)
 		{
-			var subSection = road.TakeSubSection();
-			
-			subSection.DebugPrint();
-			
-			subSections.Add(subSection);
+			subSections.Add(road.TakeSubSection());
 		}
+
+		foreach (var subSection in subSections)
+		{
+			subSection.DebugPrint();
+			subSection.FlipPointedToJigsaws();
+			subSection.DebugPrint();
+		}
+		
+		// * targeting right subsection
+		
+		//serialize
 	}
 }
