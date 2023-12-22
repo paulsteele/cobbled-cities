@@ -1,5 +1,6 @@
 ﻿using fNbt;
 using Minecraft.City.Datapack.Generator.Models.IlNodes;
+using Minecraft.City.Datapack.Generator.Models.TemplatePool;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
@@ -17,16 +18,16 @@ public class RoadSection
 	private int nextSubsectionIndex = 0;
 
 	public RoadSection(
-		NbtCompound rootTag, 
-		IlRect? boundingBox = null, 
+		NbtCompound rootTag,
+		IlRect? boundingBox = null,
 		Dictionary<IlPoint, Jigsaw>? rootJigsaws = null,
 		int index = -1
 	)
 	{
-		_rootTag = (NbtCompound) rootTag.Clone();
-		
+		_rootTag = (NbtCompound)rootTag.Clone();
+
 		var blocks = _rootTag.Get<NbtList>("blocks");
-		
+
 		if (blocks == null)
 		{
 			throw new ArgumentException($"{nameof(_rootTag)} does not have any blocks");
@@ -44,7 +45,7 @@ public class RoadSection
 		{
 			return blocks;
 		}
-		
+
 		_rootTag.SetNbtDimensions(boundingBox.Width + 1, MaxY, boundingBox.Height + 1);
 
 		var tempBlocks = blocks
@@ -72,7 +73,7 @@ public class RoadSection
 	private bool[,] InitBlocks(NbtList blocks)
 	{
 		var tiles = new bool[MaxX, MaxZ];
-		
+
 		foreach (var block in blocks)
 		{
 			if (block is not NbtCompound compound)
@@ -80,7 +81,7 @@ public class RoadSection
 				continue;
 			}
 
-			var (posX, _,  posZ) = compound.GetNbtPosition();
+			var (posX, _, posZ) = compound.GetNbtPosition();
 
 			tiles[posX, posZ] = true;
 
@@ -123,7 +124,7 @@ public class RoadSection
 						jigsawsValue.Location.Z + boundingBox.MinPoint.Z
 					);
 				}
-				
+
 				if (rootJigsaws.TryGetValue(jigsawsValue.OriginalLocation, out var rootJigsaw))
 				{
 					jigsawsValue.PointingToLocation = rootJigsaw.PointingToLocation;
@@ -171,12 +172,14 @@ public class RoadSection
 						_ => throw new ArgumentException($"{nameof(JigsawTileType)}: {jigsaw.TileType} unknown")
 					};
 					Console.Write(display);
-					
+
 					continue;
 				}
+
 				Console.Write("x");
 
 			}
+
 			Console.WriteLine();
 		}
 	}
@@ -200,7 +203,7 @@ public class RoadSection
 		{
 			Jigsaws.Remove(point);
 		}
-		
+
 		coordinates.ForEach((x, z) => _hasTile[x, z] = false);
 
 		return subsection;
@@ -220,8 +223,10 @@ public class RoadSection
 			{
 				continue;
 			}
+
 			jigsaw.SetJigsawPool($"poke-cities:{baseFileName}-{pointIndex}");
-			jigsaw.SetJigsawTarget($"poke-cities:{baseFileName}-{pointIndex}-{jigsaw.PointingToLocation.SerializedString}");
+			jigsaw.SetJigsawTarget(
+				$"poke-cities:{baseFileName}-{pointIndex}-{jigsaw.PointingToLocation.SerializedString}");
 		}
 	}
 
@@ -254,7 +259,7 @@ public class RoadSection
 		var oppositeBoundary = oppositeBoundaryCandidate1.Equals(new IlPoint(location.x, location.z))
 			? oppositeBoundaryCandidate2
 			: oppositeBoundaryCandidate1;
-		
+
 		path.Add(oppositeBoundary);
 
 		var crossXChange = Math.Abs(zChange);
@@ -267,7 +272,7 @@ public class RoadSection
 		var minZ = 0;
 		var maxX = 0;
 		var maxZ = 0;
-		
+
 		//horizontal
 		if (xChange != 0)
 		{
@@ -290,7 +295,8 @@ public class RoadSection
 		return new IlRect(minX, minZ, maxX, maxZ);
 	}
 
-	private IlPoint GetBoundaryInDirection(int startingX, int startingZ, int offsetX, int offsetZ, ICollection<IlPoint>? trace = null)
+	private IlPoint GetBoundaryInDirection(int startingX, int startingZ, int offsetX, int offsetZ,
+		ICollection<IlPoint>? trace = null)
 	{
 		var allowedToTakeJigsaw = true;
 		while (true)
@@ -330,14 +336,14 @@ public class RoadSection
 		return Jigsaws.Values.All(j => j.PointingToLocation != null);
 	}
 
-	public void SaveNbt(string fileName, string typeName)
+	public string SaveNbt(string fileName, string typeName)
 	{
 		var outputPath = $"output/data/poke-cities/structures/{typeName}";
 		if (!Directory.Exists(outputPath))
 		{
 			Directory.CreateDirectory(outputPath);
 		}
-		
+
 		var path = $"{outputPath}/{fileName}-{Index}.nbt";
 
 		var nbt = new NbtFile(_rootTag);
@@ -345,5 +351,19 @@ public class RoadSection
 		nbt.SaveToFile(path, NbtCompression.GZip);
 
 		Console.WriteLine($"Saved {path}");
+
+		return path;
+	}
+
+	public TemplatePool CreateTemplatePool(string fileName, string typeName)
+	{
+		return new TemplatePool(
+			"data/poke-cities/worldgen/template_pool",
+			$"{fileName}-{Index}",
+			new[]
+			{
+				new TemplatePoolElementWeight($"poke-cities:{typeName}/{fileName}-{Index}", 1)
+			}
+		);
 	}
 }

@@ -24,6 +24,6 @@ public class Structure : IWriteableData
 	[JsonPropertyName("size")] public int Size => 7;
 	[JsonPropertyName("start_height")] public StructureStartHeight StructureStartHeight => new(0);
 	[JsonPropertyName("project_start_to_heightmap")] public string ProjectStartToHeightMap => "WORLD_SURFACE_WG";
-	[JsonPropertyName("max_distance_from_center")] public int MaxDistanceFromCenter => 500;
+	[JsonPropertyName("max_distance_from_center")] public int MaxDistanceFromCenter => 110; // update to 500 with jigsaw expander
 	[JsonPropertyName("use_expansion_hack")] public bool UseExpansionHack => false;
 }

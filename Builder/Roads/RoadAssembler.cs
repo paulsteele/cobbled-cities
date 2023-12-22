@@ -1,18 +1,60 @@
-﻿using fNbt;
+﻿using System.Data;
+using fNbt;
+using Minecraft.City.Datapack.Generator.Models.Structure;
+using Minecraft.City.Datapack.Generator.Models.StructureSet;
+using Minecraft.City.Datapack.Generator.Models.TemplatePool;
+using Minecraft.City.Datapack.Generator.Writers;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public class RoadAssembler : IAssembler
 {
+	private readonly JsonWriter _writer;
+	private readonly List<(string name, RoadSection section)> _startingSections;
+
+	public RoadAssembler(JsonWriter writer)
+	{
+		_writer = writer;
+		_startingSections = new List<(string, RoadSection)>();
+	}
+	
 	public void Assemble()
 	{
+		_startingSections.Clear();
 		var centers = new DirectoryInfo("../../../nbts/centers");
 		
-		CreateType(centers, nameof(centers));
+		AssembleType(centers, nameof(centers));
+
+		var startingPool = new TemplatePool(
+			"data/poke-cities/worldgen/template_pool",
+			$"poke-cities",
+			_startingSections.Select(
+				s => new TemplatePoolElementWeight($"poke-cities:{nameof(centers)}/{s.name}-{s.section.Index}", 1)
+			)
+		);
+		var structure = new Structure
+		(
+			"data/poke-cities/worldgen/structure",
+			"poke-city",
+			startingPool
+		);
+		
+		var cityStructure = new StructureSet
+		(
+			"data/poke-cities/worldgen/structure_set",
+			"poke-city",
+			10,
+			10,
+			new []{new StructureSetItem(structure, 1)}
+		);
+		
+		_writer.Serialize(startingPool);
+		_writer.Serialize(structure);
+		_writer.Serialize(cityStructure);
 	}
 
-	private void CreateType(DirectoryInfo directory, string typeName)
+	private void AssembleType(DirectoryInfo directory, string typeName)
 	{
 		var files = directory.GetFiles();
 
@@ -45,9 +87,16 @@ public class RoadAssembler : IAssembler
 		{
 			subSection.UpdateJigsaws(fileName, subSectionDictionary);
 			subSection.SaveNbt(fileName, typeName);
+			
+			if (subSection.IsCenter())
+			{
+				_startingSections.Add((fileName, subSection));
+				return;
+			}
+			
+			var templatePool = subSection.CreateTemplatePool(fileName, typeName);
+			
+			_writer.Serialize(templatePool);
 		}
-		
-		
-		
 	}
 }
