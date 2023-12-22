@@ -42,4 +42,5 @@ public class IlPoint
 	}
 
 	public override string ToString() => $"({X}, {Z})";
+	public string SerializedString => $"x-{X}-z-{Z}";
 }

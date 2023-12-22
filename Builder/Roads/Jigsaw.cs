@@ -23,4 +23,32 @@ public class Jigsaw
 		TileType = TileType.FlippedTileType();
 		Compound.SetState(states[TileType]);
 	}
+
+	public void SetJigsawName(string value)
+	{
+		SetNbtField("name", value);
+	}
+	
+	public void SetJigsawPool(string value)
+	{
+		SetNbtField("pool", value);
+	}
+	
+	public void SetJigsawTarget(string value)
+	{
+		SetNbtField("target", value);
+	}
+
+	private void SetNbtField(string fieldName, string value)
+	{
+		var nbt = Compound.Get<NbtCompound>("nbt");
+
+		if (nbt == null)
+		{
+			return;
+		}
+
+		nbt[fieldName] = new NbtString(fieldName, value);
+
+	}
 }

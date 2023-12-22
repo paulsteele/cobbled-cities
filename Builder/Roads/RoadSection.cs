@@ -6,15 +6,22 @@ namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 public class RoadSection
 {
 	private readonly NbtCompound _rootTag;
-	private Dictionary<IlPoint, Jigsaw> Jigsaws { get; } = new();
+	public Dictionary<IlPoint, Jigsaw> Jigsaws { get; } = new();
 
 	private int MaxX => _rootTag.GetNbtDimensions().x;
 	private int MaxY => _rootTag.GetNbtDimensions().y;
 	private int MaxZ => _rootTag.GetNbtDimensions().z;
 
 	private readonly bool[,] _hasTile;
+	public int Index { get; }
+	private int nextSubsectionIndex = 0;
 
-	public RoadSection(NbtCompound rootTag, IlRect? boundingBox = null, Dictionary<IlPoint, Jigsaw>? rootJigsaws = null)
+	public RoadSection(
+		NbtCompound rootTag, 
+		IlRect? boundingBox = null, 
+		Dictionary<IlPoint, Jigsaw>? rootJigsaws = null,
+		int index = -1
+	)
 	{
 		_rootTag = (NbtCompound) rootTag.Clone();
 		
@@ -28,6 +35,7 @@ public class RoadSection
 		blocks = InitBoundingBox(boundingBox, blocks);
 		_hasTile = InitBlocks(blocks);
 		InitJigsaws(rootJigsaws, boundingBox);
+		Index = index;
 	}
 
 	private NbtList InitBoundingBox(IlRect? boundingBox, NbtList blocks)
@@ -181,7 +189,7 @@ public class RoadSection
 
 		var coordinates = GetRect(first.Compound);
 
-		var subsection = new RoadSection(_rootTag, coordinates, Jigsaws);
+		var subsection = new RoadSection(_rootTag, coordinates, Jigsaws, nextSubsectionIndex++);
 
 		var toRemove = Jigsaws
 			.Where(j => coordinates.PointInside(j.Key))
@@ -198,7 +206,26 @@ public class RoadSection
 		return subsection;
 	}
 
-	public void FlipPointedToJigsaws()
+	public void UpdateJigsaws(string baseFileName, Dictionary<IlPoint, int> jigsawPointToIndex)
+	{
+		FlipPointedToJigsaws();
+
+		foreach (var jigsaw in Jigsaws.Values)
+		{
+			jigsaw.SetJigsawName($"poke-cities:{baseFileName}-{Index}-{jigsaw.OriginalLocation.SerializedString}");
+			if (
+				jigsaw.PointingToLocation == null ||
+				!jigsawPointToIndex.TryGetValue(jigsaw.PointingToLocation, out var pointIndex)
+			)
+			{
+				continue;
+			}
+			jigsaw.SetJigsawPool($"poke-cities:{baseFileName}-{pointIndex}");
+			jigsaw.SetJigsawTarget($"poke-cities:{baseFileName}-{pointIndex}-{jigsaw.PointingToLocation.SerializedString}");
+		}
+	}
+
+	private void FlipPointedToJigsaws()
 	{
 		var states = _rootTag.GetTypeStateIds();
 		foreach (var jigsaw in Jigsaws.Values.Where(jigsaw => jigsaw.PointingToLocation == null))
@@ -296,5 +323,10 @@ public class RoadSection
 			startingX = newX;
 			startingZ = newZ;
 		}
+	}
+
+	public bool IsCenter()
+	{
+		return Jigsaws.Values.All(j => j.PointingToLocation != null);
 	}
 }

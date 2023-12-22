@@ -25,12 +25,9 @@ public class RoadAssembler : IAssembler
 	private void DeconstructFile(FileSystemInfo fileInfo)
 	{
 		var nbt = new NbtFile(fileInfo.FullName);
-		Console.WriteLine(nbt.FileName);
 
 		var road = new RoadSection(nbt.RootTag);
 		
-		road.DebugPrint();
-
 		var subSections = new List<RoadSection>();
 		
 		while (road.HasSubSections)
@@ -38,15 +35,16 @@ public class RoadAssembler : IAssembler
 			subSections.Add(road.TakeSubSection());
 		}
 
+		var subSectionDictionary = subSections
+			.SelectMany(s => s.Jigsaws.Values.Select(k => (k.OriginalLocation, s.Index)))
+			.ToDictionary();
+
 		foreach (var subSection in subSections)
 		{
-			subSection.DebugPrint();
-			subSection.FlipPointedToJigsaws();
-			subSection.DebugPrint();
+			subSection.UpdateJigsaws(Path.GetFileNameWithoutExtension(fileInfo.Name), subSectionDictionary);
 		}
 		
-		// * targeting right subsection
-		
+		Console.WriteLine();
 		//serialize
 	}
 }
