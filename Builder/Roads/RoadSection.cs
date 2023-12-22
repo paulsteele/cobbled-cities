@@ -329,4 +329,21 @@ public class RoadSection
 	{
 		return Jigsaws.Values.All(j => j.PointingToLocation != null);
 	}
+
+	public void SaveNbt(string fileName, string typeName)
+	{
+		var outputPath = $"output/data/poke-cities/structures/{typeName}";
+		if (!Directory.Exists(outputPath))
+		{
+			Directory.CreateDirectory(outputPath);
+		}
+		
+		var path = $"{outputPath}/{fileName}-{Index}.nbt";
+
+		var nbt = new NbtFile(_rootTag);
+
+		nbt.SaveToFile(path, NbtCompression.GZip);
+
+		Console.WriteLine($"Saved {path}");
+	}
 }

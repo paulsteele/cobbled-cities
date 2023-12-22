@@ -9,20 +9,20 @@ public class RoadAssembler : IAssembler
 	{
 		var centers = new DirectoryInfo("../../../nbts/centers");
 		
-		CreateType(centers);
+		CreateType(centers, nameof(centers));
 	}
 
-	private void CreateType(DirectoryInfo directory)
+	private void CreateType(DirectoryInfo directory, string typeName)
 	{
 		var files = directory.GetFiles();
 
 		foreach (var file in files)
 		{
-			DeconstructFile(file);
+			DeconstructFile(file, typeName);
 		}
 	}
 
-	private void DeconstructFile(FileSystemInfo fileInfo)
+	private void DeconstructFile(FileSystemInfo fileInfo, string typeName)
 	{
 		var nbt = new NbtFile(fileInfo.FullName);
 
@@ -38,13 +38,16 @@ public class RoadAssembler : IAssembler
 		var subSectionDictionary = subSections
 			.SelectMany(s => s.Jigsaws.Values.Select(k => (k.OriginalLocation, s.Index)))
 			.ToDictionary();
+		
+		var fileName = Path.GetFileNameWithoutExtension(fileInfo.Name);
 
 		foreach (var subSection in subSections)
 		{
-			subSection.UpdateJigsaws(Path.GetFileNameWithoutExtension(fileInfo.Name), subSectionDictionary);
+			subSection.UpdateJigsaws(fileName, subSectionDictionary);
+			subSection.SaveNbt(fileName, typeName);
 		}
 		
-		Console.WriteLine();
-		//serialize
+		
+		
 	}
 }
