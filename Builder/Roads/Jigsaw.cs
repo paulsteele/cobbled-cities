@@ -10,6 +10,7 @@ public class Jigsaw
 	public IlPoint OriginalLocation { get; set; }
 	public IlPoint? PointingToLocation { get; set; }
 	public NbtCompound Compound { get; }
+	public bool PointsToOutside { get; set; }
 
 	public Jigsaw(NbtCompound compound, NbtCompound rootTag, IlPoint location)
 	{

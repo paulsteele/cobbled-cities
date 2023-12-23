@@ -15,7 +15,7 @@ public class RoadSection
 
 	private readonly bool[,] _hasTile;
 	public int Index { get; }
-	private int nextSubsectionIndex = 0;
+	private int _nextSubsectionIndex;
 
 	public RoadSection(
 		NbtCompound rootTag,
@@ -111,6 +111,15 @@ public class RoadSection
 					jigsaw.PointingToLocation = candidateLocation;
 				}
 
+				if (
+					candidateLocation.X < 0 ||
+					candidateLocation.Z < 0 ||
+					candidateLocation.X >= MaxX ||
+					candidateLocation.Z >= MaxZ
+				)
+				{
+					jigsaw.PointsToOutside = true;
+				}
 			}
 		}
 		else
@@ -125,10 +134,12 @@ public class RoadSection
 					);
 				}
 
-				if (rootJigsaws.TryGetValue(jigsawsValue.OriginalLocation, out var rootJigsaw))
+				if (!rootJigsaws.TryGetValue(jigsawsValue.OriginalLocation, out var rootJigsaw))
 				{
-					jigsawsValue.PointingToLocation = rootJigsaw.PointingToLocation;
+					continue;
 				}
+				jigsawsValue.PointingToLocation = rootJigsaw.PointingToLocation;
+				jigsawsValue.PointsToOutside = rootJigsaw.PointsToOutside;
 			}
 		}
 	}
@@ -192,7 +203,7 @@ public class RoadSection
 
 		var coordinates = GetRect(first.Compound);
 
-		var subsection = new RoadSection(_rootTag, coordinates, Jigsaws, nextSubsectionIndex++);
+		var subsection = new RoadSection(_rootTag, coordinates, Jigsaws, _nextSubsectionIndex++);
 
 		var toRemove = Jigsaws
 			.Where(j => coordinates.PointInside(j.Key))
@@ -221,8 +232,13 @@ public class RoadSection
 				!jigsawPointToIndex.TryGetValue(jigsaw.PointingToLocation, out var pointIndex)
 			)
 			{
+				if (jigsaw.PointsToOutside)
+				{
+					Console.WriteLine("wut");
+				}
 				continue;
 			}
+
 
 			jigsaw.SetJigsawPool($"poke-cities:{baseFileName}-{pointIndex}");
 			jigsaw.SetJigsawTarget(
@@ -233,7 +249,13 @@ public class RoadSection
 	private void FlipPointedToJigsaws()
 	{
 		var states = _rootTag.GetTypeStateIds();
-		foreach (var jigsaw in Jigsaws.Values.Where(jigsaw => jigsaw.PointingToLocation == null))
+		foreach (
+			var jigsaw in Jigsaws.Values
+				.Where(jigsaw => 
+					jigsaw.PointingToLocation == null &&
+					jigsaw.PointsToOutside == false
+				)
+			)
 		{
 			jigsaw.Flip(states);
 		}
