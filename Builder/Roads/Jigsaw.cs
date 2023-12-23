@@ -11,6 +11,7 @@ public class Jigsaw
 	public IlPoint? PointingToLocation { get; set; }
 	public NbtCompound Compound { get; }
 	public bool PointsToOutside { get; set; }
+	public bool PointsFromOutside { get; set; }
 
 	public Jigsaw(NbtCompound compound, NbtCompound rootTag, IlPoint location)
 	{
@@ -50,6 +51,5 @@ public class Jigsaw
 		}
 
 		nbt[fieldName] = new NbtString(fieldName, value);
-
 	}
 }

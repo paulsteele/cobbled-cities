@@ -120,6 +120,18 @@ public class RoadSection
 				{
 					jigsaw.PointsToOutside = true;
 				}
+				
+				var reverseCandidateLocation = new IlPoint(jigsaw.Location.X - point.x, jigsaw.Location.Z - point.z);
+
+				if (
+					reverseCandidateLocation.X < 0 ||
+					reverseCandidateLocation.Z < 0 ||
+					reverseCandidateLocation.X >= MaxX ||
+					reverseCandidateLocation.Z >= MaxZ
+				)
+				{
+					jigsaw.PointsFromOutside = true;
+				}
 			}
 		}
 		else
@@ -140,6 +152,7 @@ public class RoadSection
 				}
 				jigsawsValue.PointingToLocation = rootJigsaw.PointingToLocation;
 				jigsawsValue.PointsToOutside = rootJigsaw.PointsToOutside;
+				jigsawsValue.PointsFromOutside = rootJigsaw.PointsFromOutside;
 			}
 		}
 	}
@@ -358,7 +371,7 @@ public class RoadSection
 
 	public bool IsCenter()
 	{
-		return Jigsaws.Values.All(j => j.PointingToLocation != null);
+		return Jigsaws.Values.All(j => j.PointingToLocation != null || j.PointsFromOutside);
 	}
 
 	public string SaveNbt(string fileName, string typeName)
