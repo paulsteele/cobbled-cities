@@ -20,9 +20,11 @@ public class RoadAssembler : IAssembler
 	public void Assemble()
 	{
 		var centers = new DirectoryInfo("../../../nbts/centers");
+		var cardinals = new DirectoryInfo("../../../nbts/cardinals");
 		
-		var centerStartingSections = AssembleType(centers, nameof(centers));
-
+		var centerStartingSections = AssembleType(centers, nameof(centers), nameof(cardinals));
+		var cardinalStartingSections = AssembleType(cardinals, nameof(cardinals), "");
+		
 		var startingPool = new TemplatePool(
 			"data/poke-cities/worldgen/template_pool",
 			$"poke-cities",
@@ -30,6 +32,15 @@ public class RoadAssembler : IAssembler
 				s => new TemplatePoolElementWeight($"poke-cities:{nameof(centers)}/{s.name}-{s.section.Index}", 1)
 			)
 		);
+		
+		var cardinalsPool = new TemplatePool(
+			"data/poke-cities/worldgen/template_pool",
+			$"cardinals",
+			cardinalStartingSections.Select(
+				s => new TemplatePoolElementWeight($"poke-cities:{nameof(cardinals)}/{s.name}-{s.section.Index}", 1)
+			)
+		);
+		
 		var structure = new Structure
 		(
 			"data/poke-cities/worldgen/structure",
@@ -47,11 +58,12 @@ public class RoadAssembler : IAssembler
 		);
 		
 		_writer.Serialize(startingPool);
+		_writer.Serialize(cardinalsPool);
 		_writer.Serialize(structure);
 		_writer.Serialize(cityStructure);
 	}
 
-	private List<(string name, RoadSection section)> AssembleType(DirectoryInfo directory, string typeName)
+	private List<(string name, RoadSection section)> AssembleType(DirectoryInfo directory, string typeName, string outsideName)
 	{
 		var files = directory.GetFiles();
 
@@ -59,13 +71,18 @@ public class RoadAssembler : IAssembler
 
 		foreach (var file in files.Where(f => f.Extension == ".nbt"))
 		{
-			DeconstructFile(file, typeName, startingSections);
+			DeconstructFile(file, typeName, startingSections, outsideName);
 		}
 
 		return startingSections;
 	}
 
-	private void DeconstructFile(FileSystemInfo fileInfo, string typeName, List<(string, RoadSection)> startingSections)
+	private void DeconstructFile(
+		FileSystemInfo fileInfo, 
+		string typeName, 
+		List<(string, RoadSection)> startingSections,
+		string outsideName
+	)
 	{
 		var nbt = new NbtFile(fileInfo.FullName);
 
@@ -86,7 +103,7 @@ public class RoadAssembler : IAssembler
 
 		foreach (var subSection in subSections)
 		{
-			subSection.UpdateJigsaws(fileName, subSectionDictionary);
+			subSection.UpdateJigsaws(fileName, subSectionDictionary, typeName, outsideName);
 			subSection.SaveNbt(fileName, typeName);
 			
 			if (subSection.IsCenter())

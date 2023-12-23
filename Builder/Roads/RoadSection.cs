@@ -233,7 +233,7 @@ public class RoadSection
 		return subsection;
 	}
 
-	public void UpdateJigsaws(string baseFileName, Dictionary<IlPoint, int> jigsawPointToIndex)
+	public void UpdateJigsaws(string baseFileName, Dictionary<IlPoint, int> jigsawPointToIndex, string typeName, string outsideName)
 	{
 		FlipPointedToJigsaws();
 
@@ -247,7 +247,13 @@ public class RoadSection
 			{
 				if (jigsaw.PointsToOutside)
 				{
-					Console.WriteLine("wut");
+					jigsaw.SetJigsawPool($"poke-cities:{outsideName}");
+					jigsaw.SetJigsawTarget($"poke-cities:{outsideName}-start");
+				}
+
+				if (jigsaw.PointsFromOutside)
+				{
+					jigsaw.SetJigsawName($"poke-cities:{typeName}-start");
 				}
 				continue;
 			}
