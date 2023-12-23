@@ -239,7 +239,6 @@ public class RoadSection
 				continue;
 			}
 
-
 			jigsaw.SetJigsawPool($"poke-cities:{baseFileName}-{pointIndex}");
 			jigsaw.SetJigsawTarget(
 				$"poke-cities:{baseFileName}-{pointIndex}-{jigsaw.PointingToLocation.SerializedString}");

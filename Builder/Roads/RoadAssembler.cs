@@ -1,4 +1,5 @@
-﻿using fNbt;
+﻿using System.Data;
+using fNbt;
 using Minecraft.City.Datapack.Generator.Models.Structure;
 using Minecraft.City.Datapack.Generator.Models.StructureSet;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;
@@ -10,25 +11,22 @@ namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 public class RoadAssembler : IAssembler
 {
 	private readonly JsonWriter _writer;
-	private readonly List<(string name, RoadSection section)> _startingSections;
 
 	public RoadAssembler(JsonWriter writer)
 	{
 		_writer = writer;
-		_startingSections = new List<(string, RoadSection)>();
 	}
 	
 	public void Assemble()
 	{
-		_startingSections.Clear();
 		var centers = new DirectoryInfo("../../../nbts/centers");
 		
-		AssembleType(centers, nameof(centers));
+		var centerStartingSections = AssembleType(centers, nameof(centers));
 
 		var startingPool = new TemplatePool(
 			"data/poke-cities/worldgen/template_pool",
 			$"poke-cities",
-			_startingSections.Select(
+			centerStartingSections.Select(
 				s => new TemplatePoolElementWeight($"poke-cities:{nameof(centers)}/{s.name}-{s.section.Index}", 1)
 			)
 		);
@@ -53,17 +51,21 @@ public class RoadAssembler : IAssembler
 		_writer.Serialize(cityStructure);
 	}
 
-	private void AssembleType(DirectoryInfo directory, string typeName)
+	private List<(string name, RoadSection section)> AssembleType(DirectoryInfo directory, string typeName)
 	{
 		var files = directory.GetFiles();
 
+		var startingSections = new List<(string, RoadSection)>();
+
 		foreach (var file in files.Where(f => f.Extension == ".nbt"))
 		{
-			DeconstructFile(file, typeName);
+			DeconstructFile(file, typeName, startingSections);
 		}
+
+		return startingSections;
 	}
 
-	private void DeconstructFile(FileSystemInfo fileInfo, string typeName)
+	private void DeconstructFile(FileSystemInfo fileInfo, string typeName, List<(string, RoadSection)> startingSections)
 	{
 		var nbt = new NbtFile(fileInfo.FullName);
 
@@ -89,7 +91,7 @@ public class RoadAssembler : IAssembler
 			
 			if (subSection.IsCenter())
 			{
-				_startingSections.Add((fileName, subSection));
+				startingSections.Add((fileName, subSection));
 				continue;
 			}
 			
