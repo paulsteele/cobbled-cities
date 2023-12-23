@@ -274,8 +274,8 @@ public class RoadSection
 
 		var location = jigsaw.GetNbtPosition();
 
-		var oppositeBoundaryCandidate1 = GetBoundaryInDirection(location.x, location.z, xChange, zChange, path);
-		var oppositeBoundaryCandidate2 = GetBoundaryInDirection(location.x, location.z, -xChange, -zChange, path);
+		var oppositeBoundaryCandidate1 = GetBoundaryInDirection(location.x, location.z, xChange, zChange, true, path);
+		var oppositeBoundaryCandidate2 = GetBoundaryInDirection(location.x, location.z, -xChange, -zChange, true, path);
 
 		var oppositeBoundary = oppositeBoundaryCandidate1.Equals(new IlPoint(location.x, location.z))
 			? oppositeBoundaryCandidate2
@@ -286,8 +286,8 @@ public class RoadSection
 		var crossXChange = Math.Abs(zChange);
 		var crossZChange = Math.Abs(xChange);
 
-		var mins = path.Select(i => GetBoundaryInDirection(i.X, i.Z, -crossXChange, -crossZChange));
-		var maxes = path.Select(i => GetBoundaryInDirection(i.X, i.Z, crossXChange, crossZChange));
+		var mins = path.Select(i => GetBoundaryInDirection(i.X, i.Z, -crossXChange, -crossZChange, false));
+		var maxes = path.Select(i => GetBoundaryInDirection(i.X, i.Z, crossXChange, crossZChange, false));
 
 		var minX = 0;
 		var minZ = 0;
@@ -316,10 +316,10 @@ public class RoadSection
 		return new IlRect(minX, minZ, maxX, maxZ);
 	}
 
-	private IlPoint GetBoundaryInDirection(int startingX, int startingZ, int offsetX, int offsetZ,
+	private IlPoint GetBoundaryInDirection(int startingX, int startingZ, int offsetX, int offsetZ, bool startingOnJigsaw,
 		ICollection<IlPoint>? trace = null)
 	{
-		var allowedToTakeJigsaw = true;
+		var allowedToTakeJigsaw = !startingOnJigsaw;
 		while (true)
 		{
 			var newX = startingX + offsetX;
@@ -343,6 +343,10 @@ public class RoadSection
 					default:
 						return new IlPoint(startingX, startingZ);
 				}
+			}
+			else
+			{
+				allowedToTakeJigsaw = true;
 			}
 
 			trace?.Add(new IlPoint(startingX, startingZ));
