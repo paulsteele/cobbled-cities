@@ -1,5 +1,4 @@
-﻿using System.Data;
-using fNbt;
+﻿using fNbt;
 using Minecraft.City.Datapack.Generator.Models.Structure;
 using Minecraft.City.Datapack.Generator.Models.StructureSet;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;
@@ -21,9 +20,11 @@ public class RoadAssembler : IAssembler
 	{
 		var centers = new DirectoryInfo("../../../nbts/centers");
 		var cardinals = new DirectoryInfo("../../../nbts/cardinals");
+		var inters = new DirectoryInfo("../../../nbts/inters");
 		
 		var centerStartingSections = AssembleType(centers, nameof(centers), nameof(cardinals));
-		var cardinalStartingSections = AssembleType(cardinals, nameof(cardinals), "");
+		var cardinalStartingSections = AssembleType(cardinals, nameof(cardinals), nameof(inters));
+		var interStartingSections = AssembleType(inters, nameof(inters), "");
 		
 		var startingPool = new TemplatePool(
 			"data/poke-cities/worldgen/template_pool",
@@ -38,6 +39,14 @@ public class RoadAssembler : IAssembler
 			$"cardinals",
 			cardinalStartingSections.Select(
 				s => new TemplatePoolElementWeight($"poke-cities:{nameof(cardinals)}/{s.name}-{s.section.Index}", 1)
+			)
+		);
+		
+		var intersPool = new TemplatePool(
+			"data/poke-cities/worldgen/template_pool",
+			$"inters",
+			interStartingSections.Select(
+				s => new TemplatePoolElementWeight($"poke-cities:{nameof(inters)}/{s.name}-{s.section.Index}", 1)
 			)
 		);
 		
@@ -59,6 +68,7 @@ public class RoadAssembler : IAssembler
 		
 		_writer.Serialize(startingPool);
 		_writer.Serialize(cardinalsPool);
+		_writer.Serialize(intersPool);
 		_writer.Serialize(structure);
 		_writer.Serialize(cityStructure);
 	}
