@@ -1,5 +1,4 @@
-﻿using System.Data;
-using fNbt;
+﻿using fNbt;
 using Minecraft.City.Datapack.Generator.Models.Structure;
 using Minecraft.City.Datapack.Generator.Models.StructureSet;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;
@@ -45,7 +44,7 @@ public class RoadAssembler : IAssembler
 			"data/poke-cities/worldgen/structure_set",
 			"poke-city",
 			10,
-			10,
+			5,
 			new []{new StructureSetItem(structure, 1)}
 		);
 		
@@ -58,7 +57,7 @@ public class RoadAssembler : IAssembler
 	{
 		var files = directory.GetFiles();
 
-		foreach (var file in files)
+		foreach (var file in files.Where(f => f.Extension == ".nbt"))
 		{
 			DeconstructFile(file, typeName);
 		}
@@ -91,7 +90,7 @@ public class RoadAssembler : IAssembler
 			if (subSection.IsCenter())
 			{
 				_startingSections.Add((fileName, subSection));
-				return;
+				continue;
 			}
 			
 			var templatePool = subSection.CreateTemplatePool(fileName, typeName);
