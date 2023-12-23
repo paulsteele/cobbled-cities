@@ -87,4 +87,16 @@ public static class JigsawTileTypeExtensions
 			_ => throw new ArgumentException($"Invalid {nameof(JigsawTileType)} {tileType}")
 		};
 	}
+
+	public static string GetGameName(this JigsawTileType tileType)
+	{
+		return tileType switch
+		{
+			JigsawTileType.North => "north_up",
+			JigsawTileType.East => "east_up",
+			JigsawTileType.South => "south_up",
+			JigsawTileType.West => "west_up",
+			_ => throw new ArgumentOutOfRangeException($"{nameof(tileType)}: {tileType} not supported value")
+		};
+	}
 }

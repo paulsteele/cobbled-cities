@@ -33,10 +33,50 @@ public class RoadSection
 			throw new ArgumentException($"{nameof(_rootTag)} does not have any blocks");
 		}
 
+		
+		InitPalette(boundingBox, _rootTag);
 		blocks = InitBoundingBox(boundingBox, blocks);
 		_hasTile = InitBlocks(blocks);
 		InitJigsaws(rootJigsaws, boundingBox);
 		Index = index;
+	}
+
+	private void InitPalette(IlRect? boundingBox, NbtCompound rootTag)
+	{
+		if (boundingBox != null)
+		{
+			return;
+		}
+
+		var palette = rootTag.GetPalette();
+
+		var stateDictionary = rootTag.GetTypeStateIds();
+
+		var neededTypes = new[]
+		{
+			JigsawTileType.North,
+			JigsawTileType.East,
+			JigsawTileType.South,
+			JigsawTileType.West
+		};
+
+		foreach (var type in neededTypes)
+		{
+			if (stateDictionary.ContainsKey(type))
+			{
+				continue;
+			}
+			
+			palette.Add(CreateJigsaw(type));
+		}
+	}
+
+	private NbtCompound CreateJigsaw(JigsawTileType orientation)
+	{
+		var name = new NbtString("Name", "minecraft:jigsaw");
+		var orientationNode = new NbtString("orientation", orientation.GetGameName());
+		var properties = new NbtCompound("Properties", new[] { orientationNode });
+		return new NbtCompound(new List<NbtTag> {properties, name});
 	}
 
 	private NbtList InitBoundingBox(IlRect? boundingBox, NbtList blocks)
@@ -172,6 +212,7 @@ public class RoadSection
 		return _hasTile[x, z];
 	}
 
+	// ReSharper disable once UnusedMember.Global
 	public void DebugPrint()
 	{
 		Console.WriteLine("======================================");
