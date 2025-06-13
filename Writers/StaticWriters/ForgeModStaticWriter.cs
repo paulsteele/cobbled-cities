@@ -3,11 +3,11 @@
 public class ForgeModStaticWriter : StaticWriter
 {
 	public override string Path => "META-INF";
-	public override string FileName => "mods.toml";
+	public override string FileName => "neoforge.mods.toml";
 
 	protected override string Contents => """
 modLoader="lowcodefml"
-loaderVersion="[40,)"
+loaderVersion="[1,)"
 license="MIT"
 
 [[mods]]
