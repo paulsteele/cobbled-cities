@@ -27,7 +27,7 @@ public class StaticFileAssembler : IAssembler
 			var directoryName = file.Directory.Name;
 			var fileName = file.Name;
 
-			var destinationDirectory = $"output/data/poke-cities/structures/{directoryName}";
+			var destinationDirectory = $"output/data/poke-cities/structure/{directoryName}";
 
 			if (!Directory.Exists(destinationDirectory))
 			{

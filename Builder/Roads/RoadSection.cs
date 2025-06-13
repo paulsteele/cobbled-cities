@@ -423,7 +423,7 @@ public class RoadSection
 
 	public string SaveNbt(string fileName, string typeName)
 	{
-		var outputPath = $"output/data/poke-cities/structures/{typeName}";
+		var outputPath = $"output/data/poke-cities/structure/{typeName}";
 		if (!Directory.Exists(outputPath))
 		{
 			Directory.CreateDirectory(outputPath);

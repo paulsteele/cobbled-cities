@@ -6,7 +6,7 @@ namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
 public class NbtPartAssembler
 {
 	private readonly NbtFileFixer _fileFixer;
-	private const string OutputPath = "output/data/poke-cities/structures/buildings";
+	private const string OutputPath = "output/data/poke-cities/structure/buildings";
 
 	public NbtPartAssembler(NbtFileFixer fileFixer)
 	{
