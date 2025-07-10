@@ -61,9 +61,9 @@ public class RoadAssembler : IAssembler
 		(
 			"data/poke-cities/worldgen/structure_set",
 			"poke-city",
-			10,
-			5,
-			new []{new StructureSetItem(structure, 1)}
+			128,
+			64,
+			[new StructureSetItem(structure, 1)]
 		);
 		
 		_writer.Serialize(startingPool);
