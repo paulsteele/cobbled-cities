@@ -38,7 +38,68 @@ public class RoadSection
 		blocks = InitBoundingBox(boundingBox, blocks);
 		_hasTile = InitBlocks(blocks);
 		InitJigsaws(rootJigsaws, boundingBox);
+		AddCaveAir();
 		Index = index;
+	}
+
+	private void AddCaveAir()
+	{
+		var palette = _rootTag.GetPalette();
+
+		var caveAirIndex = palette.Count;
+		palette.Add(CreateCaveAir());
+		
+		
+		var blocks = _rootTag.Get<NbtList>("blocks");
+		
+		if (blocks == null)
+		{
+			return;
+		}
+
+		blocks = (NbtList) blocks.Clone();
+		
+		var blockMatrix = new NbtCompound?[MaxX, MaxZ, MaxY];
+		
+		foreach (var block in blocks)
+		{
+			if (block is not NbtCompound compound)
+			{
+				continue;
+			}
+
+			var (posX, posY, posZ) = compound.GetNbtPosition();
+			blockMatrix[posX, posZ, posY] = compound;
+		}
+		
+		for (var x = 0; x < MaxX; x++)
+		{
+			for (var z = 0; z < MaxZ; z++)
+			{
+				for (var y = 0; y < MaxY; y++)
+				{
+					blockMatrix[x, z, y] ??= new NbtCompound
+					{
+						["pos"] = new NbtList("pos") { new NbtInt(x), new NbtInt(y), new NbtInt(z) },
+						["state"] = new NbtInt("state", caveAirIndex)
+					};
+				}
+			}
+		}
+		
+		var newBlocks = new NbtList("blocks");
+
+		foreach (var block in blockMatrix)
+		{
+			if (block == null)
+			{
+				continue;
+			}
+			
+			newBlocks.Add(block);
+		}
+		
+		_rootTag["blocks"] = newBlocks;
 	}
 
 	private void InitPalette(IlRect? boundingBox, NbtCompound rootTag)
@@ -77,6 +138,14 @@ public class RoadSection
 		var orientationNode = new NbtString("orientation", orientation.GetGameName());
 		var properties = new NbtCompound("Properties", new[] { orientationNode });
 		return new NbtCompound(new List<NbtTag> {properties, name});
+	}
+	
+	private NbtCompound CreateCaveAir()
+	{
+		return new NbtCompound(new List<NbtTag>
+		{
+			new NbtString("Name", "minecraft:cave_air")
+		});
 	}
 
 	private NbtList InitBoundingBox(IlRect? boundingBox, NbtList blocks)

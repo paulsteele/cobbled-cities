@@ -13,9 +13,7 @@
       <PackageReference Include="fNbt" Version="0.6.4" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="nbts\cardinals\" />
       <Folder Include="nbts\centers-small\" />
-      <Folder Include="nbts\centers\" />
       <Folder Include="nbts\inters\" />
     </ItemGroup>
 </Project>
