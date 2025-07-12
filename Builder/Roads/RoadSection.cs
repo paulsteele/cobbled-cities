@@ -6,6 +6,7 @@ namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
 public class RoadSection
 {
+	private const int RoadHeightBuffer = 16;
 	private readonly NbtCompound _rootTag;
 	public Dictionary<IlPoint, Jigsaw> Jigsaws { get; } = new();
 
@@ -38,26 +39,26 @@ public class RoadSection
 		blocks = InitBoundingBox(boundingBox, blocks);
 		_hasTile = InitBlocks(blocks);
 		InitJigsaws(rootJigsaws, boundingBox);
-		AddCaveAir();
 		Index = index;
 	}
 
-	private void AddCaveAir()
+	public void AddCaveAir()
 	{
 		var palette = _rootTag.GetPalette();
 
 		var caveAirIndex = palette.Count;
 		palette.Add(CreateCaveAir());
 		
-		
 		var blocks = _rootTag.Get<NbtList>("blocks");
-		
+
 		if (blocks == null)
 		{
 			return;
 		}
 
 		blocks = (NbtList) blocks.Clone();
+		
+		_rootTag.SetNbtDimensions(MaxX, MaxY + RoadHeightBuffer, MaxZ);
 		
 		var blockMatrix = new NbtCompound?[MaxX, MaxZ, MaxY];
 		

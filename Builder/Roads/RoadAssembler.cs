@@ -114,6 +114,7 @@ public class RoadAssembler : IAssembler
 		foreach (var subSection in subSections)
 		{
 			subSection.UpdateJigsaws(fileName, subSectionDictionary, typeName, outsideName);
+			subSection.AddCaveAir();
 			subSection.SaveNbt(fileName, typeName);
 			
 			if (subSection.IsCenter())
