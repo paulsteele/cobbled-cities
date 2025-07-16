@@ -1,33 +1,16 @@
-﻿using System.Reflection;
-using Autofac;
+﻿using Jab;
+using Minecraft.City.Datapack.Generator.Builder;
+using Minecraft.City.Datapack.Generator.Builder.Roads;
+using Minecraft.City.Datapack.Generator.Models.PackMetadata;
+using Minecraft.City.Datapack.Generator.Writers;
+using Minecraft.City.Datapack.Generator.Writers.StaticWriters;
 
 namespace Minecraft.City.Datapack.Generator;
 
-public static class Dependencies
-{
-	private static IContainer? _container;
-	public static IContainer Container => _container ??= CreateContainer();
-
-	private static IContainer CreateContainer()
-	{
-		var containerBuilder = new ContainerBuilder();
-
-		ScanForImplementations(containerBuilder);
-		RegisterManualImplementation(containerBuilder);
-
-		return containerBuilder.Build();
-	}
-
-	private static void RegisterManualImplementation(ContainerBuilder builder)
-	{
-	}
-
-	private static void ScanForImplementations(ContainerBuilder builder)
-	{
-		var currentAssembly = Assembly.GetExecutingAssembly();
-		builder
-			.RegisterAssemblyTypes(currentAssembly)
-			.AsSelf()
-			.AsImplementedInterfaces();
-	}
-}
+[ServiceProvider]
+[Transient<IStaticWriter, ForgeModStaticWriter>]
+[Transient<PackMetadata, PackMetadata>]
+[Transient<JsonWriter, JsonWriter>]
+[Transient<IAssembler, RoadAssembler>]
+[Transient<JarWriter, JarWriter>]
+public partial class Dependencies;

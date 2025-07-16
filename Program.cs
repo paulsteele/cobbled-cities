@@ -1,7 +1,4 @@
-﻿using Autofac;
-using Minecraft.City.Datapack.Generator.Builder;
-using Minecraft.City.Datapack.Generator.Builder.Roads;
-using Minecraft.City.Datapack.Generator.Builder.Static;
+﻿using Minecraft.City.Datapack.Generator.Builder;
 using Minecraft.City.Datapack.Generator.Models.PackMetadata;
 using Minecraft.City.Datapack.Generator.Writers;
 using Minecraft.City.Datapack.Generator.Writers.StaticWriters;
@@ -18,13 +15,15 @@ public static class Program
 		{
 			output.Delete(true);
 		}
+
+		var dependencies = new Dependencies();
 		
-		var staticWriters = Dependencies.Container.Resolve<IEnumerable<IStaticWriter>>();
+		var staticWriters = dependencies.GetService<IEnumerable<IStaticWriter>>();
 		staticWriters.ToList().ForEach(w => w.Serialize());
 
-		var packMetadata = Dependencies.Container.Resolve<PackMetadata>();
+		var packMetadata = dependencies.GetService<PackMetadata>();
 		
-		foreach (var assembler in Dependencies.Container.Resolve<IEnumerable<IAssembler>>())
+		foreach (var assembler in dependencies.GetService<IEnumerable<IAssembler>>())
 		{
 			assembler.Assemble();
 		}
@@ -108,7 +107,7 @@ public static class Program
 		// 	new []{new StructureSetItem(structure, 1)}
 		// );
 		
-		var jsonWriter = Dependencies.Container.Resolve<JsonWriter>();
+		var jsonWriter = dependencies.GetService<JsonWriter>();
 		
 		jsonWriter.Serialize(packMetadata, ".mcmeta");
 		// jsonWriter.Serialize(cityStructure);
@@ -121,6 +120,6 @@ public static class Program
 		// jsonWriter.Serialize(park);
 		// jsonWriter.Serialize(buildingTemplatePool);
 		
-		Dependencies.Container.Resolve<JarWriter>().CreateJar();
+		dependencies.GetService<JarWriter>().CreateJar();
 	}
 }
