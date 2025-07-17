@@ -98,6 +98,8 @@ public class RoadAssembler : IAssembler
 
 		var road = new RoadSection(nbt.RootTag);
 		
+		road.DebugPrint();
+		
 		var subSections = new List<RoadSection>();
 		
 		while (road.HasSubSections)
@@ -116,6 +118,8 @@ public class RoadAssembler : IAssembler
 			subSection.UpdateJigsaws(fileName, subSectionDictionary, typeName, outsideName);
 			subSection.AddCaveAir();
 			subSection.SaveNbt(fileName, typeName);
+			
+			subSection.DebugPrint();
 			
 			if (subSection.IsCenter())
 			{
