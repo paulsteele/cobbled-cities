@@ -7,15 +7,8 @@ using Minecraft.City.Datapack.Generator.Writers;
 namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class RoadAssembler : IAssembler
+public class RoadAssembler(JsonWriter writer) : IAssembler
 {
-	private readonly JsonWriter _writer;
-
-	public RoadAssembler(JsonWriter writer)
-	{
-		_writer = writer;
-	}
-	
 	public void Assemble()
 	{
 		var centers = new DirectoryInfo("../../../nbts/centers");
@@ -66,11 +59,11 @@ public class RoadAssembler : IAssembler
 			[new StructureSetItem(structure, 1)]
 		);
 		
-		_writer.Serialize(startingPool);
-		_writer.Serialize(cardinalsPool);
-		_writer.Serialize(intersPool);
-		_writer.Serialize(structure);
-		_writer.Serialize(cityStructure);
+		writer.Serialize(startingPool);
+		writer.Serialize(cardinalsPool);
+		writer.Serialize(intersPool);
+		writer.Serialize(structure);
+		writer.Serialize(cityStructure);
 	}
 
 	private List<(string name, RoadSection section)> AssembleType(DirectoryInfo directory, string typeName, string outsideName)
@@ -129,7 +122,7 @@ public class RoadAssembler : IAssembler
 			
 			var templatePool = subSection.CreateTemplatePool(fileName, typeName);
 			
-			_writer.Serialize(templatePool);
+			writer.Serialize(templatePool);
 		}
 	}
 }

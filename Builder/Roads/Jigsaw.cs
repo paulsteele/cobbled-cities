@@ -12,6 +12,7 @@ public class Jigsaw
 	public NbtCompound Compound { get; }
 	public bool PointsToOutside { get; set; }
 	public bool PointsFromOutside { get; set; }
+	public bool IsBuilding { get; set; }
 
 	public Jigsaw(NbtCompound compound, NbtCompound rootTag, IlPoint location)
 	{
