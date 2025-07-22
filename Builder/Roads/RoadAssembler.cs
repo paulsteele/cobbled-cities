@@ -109,7 +109,7 @@ public class RoadAssembler(JsonWriter writer) : IAssembler
 		foreach (var subSection in subSections)
 		{
 			subSection.UpdateJigsaws(fileName, subSectionDictionary, typeName, outsideName);
-			subSection.AddCaveAir();
+			subSection.FillEmptySpace();
 			subSection.SaveNbt(fileName, typeName);
 			
 			subSection.DebugPrint();
