@@ -10,11 +10,7 @@ public abstract class AbstractSection
 	protected readonly NbtCompound RootTag;
 	protected readonly bool[,] TileMap;
 
-	protected AbstractSection(
-		NbtCompound rootTag,
-		IlRect? boundingBox = null,
-		Dictionary<IlPoint, Jigsaw.Jigsaw>? rootJigsaws = null
-	)
+	protected AbstractSection(NbtCompound rootTag)
 	{
 		RootTag = (NbtCompound)rootTag.Clone();
 		var blocks = RootTag.Get<NbtList>("blocks");
@@ -24,10 +20,9 @@ public abstract class AbstractSection
 			throw new ArgumentException($"{nameof(RootTag)} does not have any blocks");
 		}
 
-		InitPalette(boundingBox, RootTag);
-		blocks = InitBoundingBox(boundingBox, blocks);
 		TileMap = InitBlocks(blocks);
-		InitJigsaws(rootJigsaws, boundingBox);
+		InitPalette(RootTag);
+		InitJigsaws();
 	}
 
 	protected int MaxX => RootTag.GetNbtDimensions().x;
@@ -35,13 +30,8 @@ public abstract class AbstractSection
 	protected int MaxZ => RootTag.GetNbtDimensions().z;
 	public Dictionary<IlPoint, Jigsaw.Jigsaw> Jigsaws { get; } = new();
 	
-	private void InitPalette(IlRect? boundingBox, NbtCompound rootTag)
+	private void InitPalette(NbtCompound rootTag)
 	{
-		if (boundingBox != null)
-		{
-			return;
-		}
-
 		var palette = rootTag.GetPalette();
 
 		var stateDictionary = rootTag.GetTypeStateIds();
@@ -64,97 +54,39 @@ public abstract class AbstractSection
 			palette.Add(CreateJigsaw(type));
 		}
 	}
-	
-	private NbtList InitBoundingBox(IlRect? boundingBox, NbtList blocks)
+
+	private void InitJigsaws()
 	{
-		if (boundingBox == null)
+		foreach (var jigsaw in Jigsaws.Values)
 		{
-			return blocks;
-		}
+			var point = jigsaw.TileType.GetOffsetForTileType();
+			var candidateLocation = new IlPoint(jigsaw.Location.X + point.x, jigsaw.Location.Z + point.z);
 
-		RootTag.SetNbtDimensions(boundingBox.Width + 1, MaxY, boundingBox.Height + 1);
-
-		var tempBlocks = blocks
-			.Where(b => b is NbtCompound)
-			.Cast<NbtCompound>()
-			.Where(b =>
+			if (Jigsaws.ContainsKey(candidateLocation))
 			{
-				var pos = b.GetNbtPosition();
-				return boundingBox.PointInside(pos.x, pos.z);
-			}).ToList();
-
-		foreach (var block in tempBlocks)
-		{
-			var pos = block.GetNbtPosition();
-			block.SetNbtPosition(pos.x - boundingBox.MinPoint.X, pos.y, pos.z - boundingBox.MinPoint.Z);
-		}
-
-		var newList = new NbtList("blocks");
-		newList.AddRange(tempBlocks);
-
-		RootTag["blocks"] = newList;
-		return newList;
-	}
-
-	private void InitJigsaws(Dictionary<IlPoint, Jigsaw.Jigsaw>? rootJigsaws, IlRect? boundingBox)
-	{
-		if (rootJigsaws == null)
-		{
-			foreach (var jigsaw in Jigsaws.Values)
-			{
-				var point = jigsaw.TileType.GetOffsetForTileType();
-				var candidateLocation = new IlPoint(jigsaw.Location.X + point.x, jigsaw.Location.Z + point.z);
-
-				if (Jigsaws.ContainsKey(candidateLocation))
-				{
-					jigsaw.PointingToLocation = candidateLocation;
-				}
-
-				if (
-					candidateLocation.X < 0 ||
-					candidateLocation.Z < 0 ||
-					candidateLocation.X >= MaxX ||
-					candidateLocation.Z >= MaxZ
-				)
-				{
-					jigsaw.PointsToOutside = true;
-				}
-				
-				var reverseCandidateLocation = new IlPoint(jigsaw.Location.X - point.x, jigsaw.Location.Z - point.z);
-
-				if (
-					reverseCandidateLocation.X < 0 ||
-					reverseCandidateLocation.Z < 0 ||
-					reverseCandidateLocation.X >= MaxX ||
-					reverseCandidateLocation.Z >= MaxZ
-				)
-				{
-					jigsaw.PointsFromOutside = true;
-				}
+				jigsaw.PointingToLocation = candidateLocation;
 			}
 
-			MarkBuildingJigsaws();
-		}
-		else
-		{
-			foreach (var jigsawsValue in Jigsaws.Values)
+			if (
+				candidateLocation.X < 0 ||
+				candidateLocation.Z < 0 ||
+				candidateLocation.X >= MaxX ||
+				candidateLocation.Z >= MaxZ
+			)
 			{
-				if (boundingBox != null)
-				{
-					jigsawsValue.OriginalLocation = new IlPoint(
-						jigsawsValue.Location.X + boundingBox.MinPoint.X,
-						jigsawsValue.Location.Z + boundingBox.MinPoint.Z
-					);
-				}
+				jigsaw.PointsToOutside = true;
+			}
+			
+			var reverseCandidateLocation = new IlPoint(jigsaw.Location.X - point.x, jigsaw.Location.Z - point.z);
 
-				if (!rootJigsaws.TryGetValue(jigsawsValue.OriginalLocation, out var rootJigsaw))
-				{
-					continue;
-				}
-				jigsawsValue.PointingToLocation = rootJigsaw.PointingToLocation;
-				jigsawsValue.PointsToOutside = rootJigsaw.PointsToOutside;
-				jigsawsValue.PointsFromOutside = rootJigsaw.PointsFromOutside;
-				jigsawsValue.IsBuilding = rootJigsaw.IsBuilding;
+			if (
+				reverseCandidateLocation.X < 0 ||
+				reverseCandidateLocation.Z < 0 ||
+				reverseCandidateLocation.X >= MaxX ||
+				reverseCandidateLocation.Z >= MaxZ
+			)
+			{
+				jigsaw.PointsFromOutside = true;
 			}
 		}
 	}
@@ -293,21 +225,5 @@ public abstract class AbstractSection
 		var orientationNode = new NbtString("orientation", orientation.GetGameName());
 		var properties = new NbtCompound("Properties", new[] { orientationNode });
 		return new NbtCompound(new List<NbtTag> {properties, name});
-	}
-
-	private void MarkBuildingJigsaws()
-	{
-		var pointedTo = new HashSet<IlPoint>(Jigsaws.Values
-			.Where(j => j is { PointingToLocation: not null, PointsToOutside: false })
-			.Select(j => j.PointingToLocation!));
-
-		foreach (var jigsaw in Jigsaws.Values)
-		{
-			var hasNoOutgoing = jigsaw.PointingToLocation == null;
-			var notPointedTo = !pointedTo.Contains(jigsaw.Location);
-			var notPointingOutside = !jigsaw.PointsToOutside;
-
-			jigsaw.IsBuilding = hasNoOutgoing && notPointedTo && notPointingOutside;
-		}
 	}
 }
