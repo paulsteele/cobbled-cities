@@ -12,4 +12,7 @@
       <PackageReference Include="fNbt" Version="0.6.4" />
       <PackageReference Include="Jab" Version="0.11.0" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="nbts\buildings\static\" />
+    </ItemGroup>
 </Project>

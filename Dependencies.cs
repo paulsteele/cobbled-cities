@@ -1,5 +1,6 @@
 ﻿using Jab;
 using Minecraft.City.Datapack.Generator.Builder;
+using Minecraft.City.Datapack.Generator.Builder.Buildings;
 using Minecraft.City.Datapack.Generator.Builder.Roads;
 using Minecraft.City.Datapack.Generator.Models.PackMetadata;
 using Minecraft.City.Datapack.Generator.Writers;
@@ -12,5 +13,6 @@ namespace Minecraft.City.Datapack.Generator;
 [Transient<PackMetadata, PackMetadata>]
 [Transient<JsonWriter, JsonWriter>]
 [Transient<IAssembler, RoadAssembler>]
+[Transient<IAssembler, BuildingAssembler>]
 [Transient<JarWriter, JarWriter>]
 public partial class Dependencies;
