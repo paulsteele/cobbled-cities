@@ -7,7 +7,8 @@ public enum JigsawTileType
 	North,
 	East,
 	South,
-	West
+	West,
+	Up
 }
 
 public static class JigsawTileTypeExtensions
@@ -22,6 +23,10 @@ public static class JigsawTileTypeExtensions
 			"south_up" => JigsawTileType.South,
 			"west_up" => JigsawTileType.West,
 			"east_up" => JigsawTileType.East,
+			"up_north" => JigsawTileType.Up,
+			"up_south" => JigsawTileType.Up,
+			"up_west" => JigsawTileType.Up,
+			"up_east" => JigsawTileType.Up,
 			_ => throw new ArgumentOutOfRangeException($"{nameof(orientation)}: {orientation} not supported value")
 		};
 	}
@@ -58,6 +63,12 @@ public static class JigsawTileTypeExtensions
 				case "west_up":
 					dictionary.Add(JigsawTileType.West, index);
 					break;
+				case "up_north":
+				case "up_south":
+				case "up_east":
+				case "up_west":
+					dictionary.TryAdd(JigsawTileType.Up, index);
+					break;
 			}
 		}
 
@@ -72,6 +83,7 @@ public static class JigsawTileTypeExtensions
 			JigsawTileType.East => (1, 0),
 			JigsawTileType.South => (0, 1),
 			JigsawTileType.West => (-1, 0),
+			JigsawTileType.Up => (0, 0),
 			_ => (-1, -1)
 		};
 	}
