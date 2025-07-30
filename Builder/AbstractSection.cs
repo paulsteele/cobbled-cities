@@ -7,7 +7,7 @@ namespace Minecraft.City.Datapack.Generator.Builder;
 public abstract class AbstractSection
 {
 	private const int EmptySpaceExtraHeight = 16;
-	protected readonly NbtCompound RootTag;
+	public readonly NbtCompound RootTag;
 	protected readonly bool[,] TileMap;
 
 	protected AbstractSection(NbtCompound rootTag)

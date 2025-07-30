@@ -32,4 +32,9 @@ public class BuildingSection(NbtCompound rootTag) : AbstractSection(rootTag)
 			// jigsaw.SetJigsawTarget($"poke-cities:buildings-start");
 		}
 	}
+
+	public BuildingSection Clone()
+	{
+		return new BuildingSection(RootTag);
+	}
 }
