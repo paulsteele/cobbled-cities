@@ -3,6 +3,7 @@ using Minecraft.City.Datapack.Generator.Builder;
 using Minecraft.City.Datapack.Generator.Builder.Buildings;
 using Minecraft.City.Datapack.Generator.Builder.Roads;
 using Minecraft.City.Datapack.Generator.Models.PackMetadata;
+using Minecraft.City.Datapack.Generator.Services;
 using Minecraft.City.Datapack.Generator.Writers;
 using Minecraft.City.Datapack.Generator.Writers.StaticWriters;
 
@@ -15,4 +16,5 @@ namespace Minecraft.City.Datapack.Generator;
 [Transient<IAssembler, RoadAssembler>]
 [Transient<IAssembler, BuildingAssembler>]
 [Transient<JarWriter, JarWriter>]
+[Singleton<IBuildingPoolService, BuildingPoolService>]
 public partial class Dependencies;

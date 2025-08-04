@@ -1,10 +1,11 @@
 using fNbt;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;
+using Minecraft.City.Datapack.Generator.Services;
 using Minecraft.City.Datapack.Generator.Writers;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
 
-public class BuildingAssembler(JsonWriter writer) : IAssembler
+public class BuildingAssembler(JsonWriter writer, IBuildingPoolService buildingPoolService) : IAssembler
 {
 	private const int MinHeight = 3;
 	private const int MaxHeight = 10;
@@ -19,9 +20,9 @@ public class BuildingAssembler(JsonWriter writer) : IAssembler
 		var urban = dynamicBuildingNames.Where(b => b.Height is >= 4 and <= 6);
 		var residential = dynamicBuildingNames.Where(b => b.Height == 3);
 
-		var centralPool = CreateTemplatePool("buildings-central", central);
-		var urbanPool = CreateTemplatePool("buildings-urban", urban);
-		var residentialPool = CreateTemplatePool("buildings-residential", residential);
+		var centralPool = CreateTemplatePool(buildingPoolService.CentralPoolName, central);
+		var urbanPool = CreateTemplatePool(buildingPoolService.UrbanPoolName, urban);
+		var residentialPool = CreateTemplatePool(buildingPoolService.ResidentialPoolName, residential);
 
 		writer.Serialize(centralPool);
 		writer.Serialize(urbanPool);

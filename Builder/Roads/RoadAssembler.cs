@@ -2,12 +2,13 @@ using fNbt;
 using Minecraft.City.Datapack.Generator.Models.Structure;
 using Minecraft.City.Datapack.Generator.Models.StructureSet;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;
+using Minecraft.City.Datapack.Generator.Services;
 using Minecraft.City.Datapack.Generator.Writers;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class RoadAssembler(JsonWriter writer) : IAssembler
+public class RoadAssembler(JsonWriter writer, IBuildingPoolService buildingPoolService) : IAssembler
 {
 	public void Assemble()
 	{
@@ -108,7 +109,7 @@ public class RoadAssembler(JsonWriter writer) : IAssembler
 
 		foreach (var subSection in subSections)
 		{
-			subSection.UpdateJigsaws(fileName, subSectionDictionary, typeName, outsideName);
+			subSection.UpdateJigsaws(fileName, subSectionDictionary, typeName, outsideName, buildingPoolService);
 			subSection.FillEmptySpace();
 			subSection.SaveNbt(fileName, typeName);
 			

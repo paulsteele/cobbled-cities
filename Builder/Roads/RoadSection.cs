@@ -2,6 +2,7 @@ using fNbt;
 using Minecraft.City.Datapack.Generator.Builder.Jigsaw;
 using Minecraft.City.Datapack.Generator.Models.IlNodes;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;
+using Minecraft.City.Datapack.Generator.Services;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
@@ -167,7 +168,7 @@ public class RoadSection : AbstractSection
 		return subsection;
 	}
 
-	public void UpdateJigsaws(string baseFileName, Dictionary<IlPoint, int> jigsawPointToIndex, string typeName, string outsideName)
+	public void UpdateJigsaws(string baseFileName, Dictionary<IlPoint, int> jigsawPointToIndex, string typeName, string outsideName, IBuildingPoolService buildingPoolService)
 	{
 		RotateBuildingJigsaws();
 		FlipPointedToJigsaws();
@@ -177,7 +178,8 @@ public class RoadSection : AbstractSection
 			jigsaw.SetJigsawName($"poke-cities:{baseFileName}-{Index}-{jigsaw.OriginalLocation.SerializedString}");
 			if (jigsaw.IsBuilding)
 			{
-				jigsaw.SetJigsawPool($"poke-cities:buildings-{typeName}");
+				var buildingPoolName = buildingPoolService.GetPoolNameForRoadType(typeName);
+				jigsaw.SetJigsawPool($"poke-cities:{buildingPoolName}");
 				jigsaw.SetJigsawTarget($"poke-cities:buildings-start");
 				continue;
 			}
