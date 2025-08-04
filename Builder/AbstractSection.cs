@@ -1,4 +1,4 @@
-﻿using fNbt;
+using fNbt;
 using Minecraft.City.Datapack.Generator.Builder.Jigsaw;
 using Minecraft.City.Datapack.Generator.Models.IlNodes;
 

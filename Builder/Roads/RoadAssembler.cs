@@ -1,4 +1,4 @@
-﻿using fNbt;
+using fNbt;
 using Minecraft.City.Datapack.Generator.Models.Structure;
 using Minecraft.City.Datapack.Generator.Models.StructureSet;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;

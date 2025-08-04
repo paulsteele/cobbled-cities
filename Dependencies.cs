@@ -1,4 +1,4 @@
-﻿using Jab;
+using Jab;
 using Minecraft.City.Datapack.Generator.Builder;
 using Minecraft.City.Datapack.Generator.Builder.Buildings;
 using Minecraft.City.Datapack.Generator.Builder.Roads;

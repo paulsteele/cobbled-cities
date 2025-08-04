@@ -1,4 +1,4 @@
-﻿namespace Minecraft.City.Datapack.Generator.Writers.StaticWriters;
+namespace Minecraft.City.Datapack.Generator.Writers.StaticWriters;
 
 public class ForgeModStaticWriter : StaticWriter
 {

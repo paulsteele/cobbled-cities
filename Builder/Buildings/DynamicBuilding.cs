@@ -1,4 +1,4 @@
-﻿using Combinatorics.Collections;
+using Combinatorics.Collections;
 using fNbt;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Buildings;

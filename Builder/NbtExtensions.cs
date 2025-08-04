@@ -1,4 +1,4 @@
-﻿using fNbt;
+using fNbt;
 
 namespace Minecraft.City.Datapack.Generator.Builder;
 

@@ -1,4 +1,4 @@
-﻿using fNbt;
+using fNbt;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;
 using Minecraft.City.Datapack.Generator.Writers;
 
@@ -15,17 +15,17 @@ public class BuildingAssembler(JsonWriter writer) : IAssembler
 
 		var dynamicBuildingNames = dynamicBuildings.SelectMany(b => b.ConstructDynamicBuilding(MinHeight, MaxHeight)).ToArray();
 
-		var centers = dynamicBuildingNames.Where(b => b.Height >= 6);
-		var cardinals = dynamicBuildingNames.Where(b => b.Height is >= 4 and <= 6);
-		var inters = dynamicBuildingNames.Where(b => b.Height == 3);
+		var central = dynamicBuildingNames.Where(b => b.Height >= 6);
+		var urban = dynamicBuildingNames.Where(b => b.Height is >= 4 and <= 6);
+		var residential = dynamicBuildingNames.Where(b => b.Height == 3);
 
-		var centerPool = CreateTemplatePool("buildings-centers", centers);
-		var cardPool = CreateTemplatePool("buildings-cardinals", cardinals);
-		var interPool = CreateTemplatePool("buildings-inters", inters);
+		var centralPool = CreateTemplatePool("buildings-central", central);
+		var urbanPool = CreateTemplatePool("buildings-urban", urban);
+		var residentialPool = CreateTemplatePool("buildings-residential", residential);
 
-		writer.Serialize(centerPool);
-		writer.Serialize(cardPool);
-		writer.Serialize(interPool);
+		writer.Serialize(centralPool);
+		writer.Serialize(urbanPool);
+		writer.Serialize(residentialPool);
 	}
 
 	private TemplatePool CreateTemplatePool(string fileName, IEnumerable<BuildingInfo> dynamicBuildings)
@@ -38,5 +38,4 @@ public class BuildingAssembler(JsonWriter writer) : IAssembler
 			).ToArray()
 		);
 	}
-
 }

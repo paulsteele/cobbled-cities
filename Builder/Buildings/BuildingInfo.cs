@@ -1,4 +1,4 @@
-﻿namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
+namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
 
 public record BuildingInfo()
 {

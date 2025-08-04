@@ -1,4 +1,4 @@
-﻿namespace Minecraft.City.Datapack.Generator;
+namespace Minecraft.City.Datapack.Generator;
 
 public static class Helpers
 {

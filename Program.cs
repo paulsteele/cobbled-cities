@@ -1,4 +1,4 @@
-﻿using Minecraft.City.Datapack.Generator.Builder;
+using Minecraft.City.Datapack.Generator.Builder;
 using Minecraft.City.Datapack.Generator.Models.PackMetadata;
 using Minecraft.City.Datapack.Generator.Writers;
 using Minecraft.City.Datapack.Generator.Writers.StaticWriters;
