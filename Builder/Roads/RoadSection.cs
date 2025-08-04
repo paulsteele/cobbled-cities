@@ -168,7 +168,7 @@ public class RoadSection : AbstractSection
 		return subsection;
 	}
 
-	public void UpdateJigsaws(string baseFileName, Dictionary<IlPoint, int> jigsawPointToIndex, string typeName, string outsideName, IBuildingPoolService buildingPoolService)
+	public void UpdateJigsaws(string baseFileName, Dictionary<IlPoint, int> jigsawPointToIndex, string typeName, string outsideName, IBuildingZoneService buildingZoneService)
 	{
 		RotateBuildingJigsaws();
 		FlipPointedToJigsaws();
@@ -178,7 +178,7 @@ public class RoadSection : AbstractSection
 			jigsaw.SetJigsawName($"poke-cities:{baseFileName}-{Index}-{jigsaw.OriginalLocation.SerializedString}");
 			if (jigsaw.IsBuilding)
 			{
-				var buildingPoolName = buildingPoolService.GetPoolNameForRoadType(typeName);
+				var buildingPoolName = buildingZoneService.GetPoolNameForRoadType(typeName);
 				jigsaw.SetJigsawPool($"poke-cities:{buildingPoolName}");
 				jigsaw.SetJigsawTarget($"poke-cities:buildings-start");
 				continue;

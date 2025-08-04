@@ -5,7 +5,7 @@ using Minecraft.City.Datapack.Generator.Writers;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
 
-public class BuildingAssembler(JsonWriter writer, IBuildingPoolService buildingPoolService) : IAssembler
+public class BuildingAssembler(JsonWriter writer, IBuildingZoneService buildingZoneService) : IAssembler
 {
 	private const int MinHeight = 3;
 	private const int MaxHeight = 10;
@@ -16,17 +16,12 @@ public class BuildingAssembler(JsonWriter writer, IBuildingPoolService buildingP
 
 		var dynamicBuildingNames = dynamicBuildings.SelectMany(b => b.ConstructDynamicBuilding(MinHeight, MaxHeight)).ToArray();
 
-		var central = dynamicBuildingNames.Where(b => b.Height >= 6);
-		var urban = dynamicBuildingNames.Where(b => b.Height is >= 4 and <= 6);
-		var residential = dynamicBuildingNames.Where(b => b.Height == 3);
-
-		var centralPool = CreateTemplatePool(buildingPoolService.CentralPoolName, central);
-		var urbanPool = CreateTemplatePool(buildingPoolService.UrbanPoolName, urban);
-		var residentialPool = CreateTemplatePool(buildingPoolService.ResidentialPoolName, residential);
-
-		writer.Serialize(centralPool);
-		writer.Serialize(urbanPool);
-		writer.Serialize(residentialPool);
+		foreach (var zone in buildingZoneService.Zones)
+		{
+			var zoneBuildings = dynamicBuildingNames.Where(b => b.Height >= zone.MinHeight && b.Height <= zone.MaxHeight);
+			var templatePool = CreateTemplatePool(zone.Name, zoneBuildings);
+			writer.Serialize(templatePool);
+		}
 	}
 
 	private TemplatePool CreateTemplatePool(string fileName, IEnumerable<BuildingInfo> dynamicBuildings)

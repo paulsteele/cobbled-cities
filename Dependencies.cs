@@ -16,5 +16,5 @@ namespace Minecraft.City.Datapack.Generator;
 [Transient<IAssembler, RoadAssembler>]
 [Transient<IAssembler, BuildingAssembler>]
 [Transient<JarWriter, JarWriter>]
-[Singleton<IBuildingPoolService, BuildingPoolService>]
+[Singleton<IBuildingZoneService, BuildingZoneService>]
 public partial class Dependencies;

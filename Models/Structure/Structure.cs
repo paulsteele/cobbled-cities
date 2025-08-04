@@ -17,9 +17,9 @@ public class Structure : IWriteableData
 
 	[JsonPropertyName("type")] public string Type => "minecraft:jigsaw";
 	[JsonPropertyName("biomes")] public string Biomes => "#minecraft:is_overworld";
-	[JsonPropertyName("step")] public string Step => "underground_structures";
+	[JsonPropertyName("step")] public string Step => "surface_structures";
 	[JsonPropertyName("start_pool")] public string StartPool { get; }
-	[JsonPropertyName("spawn_overrides")] public object SpawnOverrides => new object();
+	[JsonPropertyName("spawn_overrides")] public SpawnOverrides SpawnOverrides => new();
 	[JsonPropertyName("terrain_adaptation")] public string TerrainAdaptation => "beard_box";
 	[JsonPropertyName("size")] public int Size => 7;
 	[JsonPropertyName("start_height")] public StructureStartHeight StructureStartHeight => new(0);

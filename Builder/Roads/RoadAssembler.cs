@@ -8,7 +8,7 @@ using Minecraft.City.Datapack.Generator.Writers;
 namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class RoadAssembler(JsonWriter writer, IBuildingPoolService buildingPoolService) : IAssembler
+public class RoadAssembler(JsonWriter writer, IBuildingZoneService buildingZoneService) : IAssembler
 {
 	public void Assemble()
 	{
@@ -109,7 +109,7 @@ public class RoadAssembler(JsonWriter writer, IBuildingPoolService buildingPoolS
 
 		foreach (var subSection in subSections)
 		{
-			subSection.UpdateJigsaws(fileName, subSectionDictionary, typeName, outsideName, buildingPoolService);
+			subSection.UpdateJigsaws(fileName, subSectionDictionary, typeName, outsideName, buildingZoneService);
 			subSection.FillEmptySpace();
 			subSection.SaveNbt(fileName, typeName);
 			
