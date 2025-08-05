@@ -1,6 +1,4 @@
-using fNbt;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;
-using Minecraft.City.Datapack.Generator.Services;
 using Minecraft.City.Datapack.Generator.Writers;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Buildings;

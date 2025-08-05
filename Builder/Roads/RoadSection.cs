@@ -1,8 +1,8 @@
 using fNbt;
+using Minecraft.City.Datapack.Generator.Builder.Buildings;
 using Minecraft.City.Datapack.Generator.Builder.Jigsaw;
 using Minecraft.City.Datapack.Generator.Models.IlNodes;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;
-using Minecraft.City.Datapack.Generator.Services;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Roads;
 
@@ -168,7 +168,13 @@ public class RoadSection : AbstractSection
 		return subsection;
 	}
 
-	public void UpdateJigsaws(string baseFileName, Dictionary<IlPoint, int> jigsawPointToIndex, string typeName, string outsideName, IBuildingZoneService buildingZoneService)
+	public void UpdateJigsaws
+	(
+		string baseFileName, 
+		Dictionary<IlPoint, int> jigsawPointToIndex, 
+		RoadZone roadZone,
+		IBuildingZoneService buildingZoneService
+	)
 	{
 		RotateBuildingJigsaws();
 		FlipPointedToJigsaws();
@@ -178,8 +184,21 @@ public class RoadSection : AbstractSection
 			jigsaw.SetJigsawName($"poke-cities:{baseFileName}-{Index}-{jigsaw.OriginalLocation.SerializedString}");
 			if (jigsaw.IsBuilding)
 			{
-				var buildingPoolName = buildingZoneService.GetPoolNameForRoadType(typeName);
-				jigsaw.SetJigsawPool($"poke-cities:{buildingPoolName}");
+				// var jigsawWorldPosition = jigsaw.OriginalLocation;
+				// var distanceFromCenter = Math.Sqrt(
+				// 	Math.Pow(jigsawWorldPosition.X - structureCenter.X, 2) + 
+				// 	Math.Pow(jigsawWorldPosition.Z - structureCenter.Z, 2)
+				// );
+				//
+
+				var distance = roadZone.Name switch
+				{
+					"centers" => 20,
+					"cardinals" => 100,
+					_ => 600
+				};
+				var buildingZone = buildingZoneService.GetZoneByDistance(distance);
+				jigsaw.SetJigsawPool($"poke-cities:{buildingZone.Name}");
 				jigsaw.SetJigsawTarget($"poke-cities:buildings-start");
 				continue;
 			}
@@ -190,13 +209,13 @@ public class RoadSection : AbstractSection
 			{
 				if (jigsaw.PointsToOutside)
 				{
-					jigsaw.SetJigsawPool($"poke-cities:{outsideName}");
-					jigsaw.SetJigsawTarget($"poke-cities:{outsideName}-start");
+					jigsaw.SetJigsawPool($"poke-cities:{roadZone.NextZone?.Name}");
+					jigsaw.SetJigsawTarget($"poke-cities:{roadZone.NextZone?.Name}-start");
 				}
 
 				if (jigsaw.PointsFromOutside)
 				{
-					jigsaw.SetJigsawName($"poke-cities:{typeName}-start");
+					jigsaw.SetJigsawName($"poke-cities:{roadZone.Name}-start");
 				}
 				continue;
 			}

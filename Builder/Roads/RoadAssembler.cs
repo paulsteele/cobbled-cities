@@ -1,8 +1,8 @@
 using fNbt;
+using Minecraft.City.Datapack.Generator.Builder.Buildings;
 using Minecraft.City.Datapack.Generator.Models.Structure;
 using Minecraft.City.Datapack.Generator.Models.StructureSet;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;
-using Minecraft.City.Datapack.Generator.Services;
 using Minecraft.City.Datapack.Generator.Writers;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Roads;
@@ -12,13 +12,16 @@ public class RoadAssembler(JsonWriter writer, IBuildingZoneService buildingZoneS
 {
 	public void Assemble()
 	{
-		var centers = new DirectoryInfo("../../../nbts/centers");
-		var cardinals = new DirectoryInfo("../../../nbts/cardinals");
-		var inters = new DirectoryInfo("../../../nbts/inters");
-		
-		var centerStartingSections = AssembleType(centers, nameof(centers), nameof(cardinals));
-		var cardinalStartingSections = AssembleType(cardinals, nameof(cardinals), nameof(inters));
-		var interStartingSections = AssembleType(inters, nameof(inters), "");
+		var centers = new RoadZone(new DirectoryInfo("../../../nbts/centers"), "centers");
+		var cardinals = new RoadZone(new DirectoryInfo("../../../nbts/cardinals"), "cardinals");
+		var inters = new RoadZone(new DirectoryInfo("../../../nbts/inters"), "inters");
+
+		centers.NextZone = cardinals;
+		cardinals.NextZone = inters;
+
+		var centerStartingSections = AssembleType(centers);
+		var cardinalStartingSections = AssembleType(cardinals);
+		var interStartingSections = AssembleType(inters);
 		
 		var startingPool = new TemplatePool(
 			"data/poke-cities/worldgen/template_pool",
@@ -67,15 +70,15 @@ public class RoadAssembler(JsonWriter writer, IBuildingZoneService buildingZoneS
 		writer.Serialize(cityStructure);
 	}
 
-	private List<(string name, RoadSection section)> AssembleType(DirectoryInfo directory, string typeName, string outsideName)
+	private List<(string name, RoadSection section)> AssembleType(RoadZone zone)
 	{
-		var files = directory.GetFiles();
+		var files = zone.GetFiles();
 
 		var startingSections = new List<(string, RoadSection)>();
 
 		foreach (var file in files.Where(f => f.Extension == ".nbt"))
 		{
-			DeconstructFile(file, typeName, startingSections, outsideName);
+			DeconstructFile(file, zone, startingSections);
 		}
 
 		return startingSections;
@@ -83,9 +86,8 @@ public class RoadAssembler(JsonWriter writer, IBuildingZoneService buildingZoneS
 
 	private void DeconstructFile(
 		FileSystemInfo fileInfo, 
-		string typeName, 
-		List<(string, RoadSection)> startingSections,
-		string outsideName
+		RoadZone zone,
+		List<(string, RoadSection)> startingSections
 	)
 	{
 		var nbt = new NbtFile(fileInfo.FullName);
@@ -109,9 +111,9 @@ public class RoadAssembler(JsonWriter writer, IBuildingZoneService buildingZoneS
 
 		foreach (var subSection in subSections)
 		{
-			subSection.UpdateJigsaws(fileName, subSectionDictionary, typeName, outsideName, buildingZoneService);
+			subSection.UpdateJigsaws(fileName, subSectionDictionary, zone, buildingZoneService);
 			subSection.FillEmptySpace();
-			subSection.SaveNbt(fileName, typeName);
+			subSection.SaveNbt(fileName, zone.Name);
 			
 			subSection.DebugPrint();
 			
@@ -121,7 +123,7 @@ public class RoadAssembler(JsonWriter writer, IBuildingZoneService buildingZoneS
 				continue;
 			}
 			
-			var templatePool = subSection.CreateTemplatePool(fileName, typeName);
+			var templatePool = subSection.CreateTemplatePool(fileName, zone.Name);
 			
 			writer.Serialize(templatePool);
 		}

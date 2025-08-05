@@ -1,0 +1,8 @@
+﻿namespace Minecraft.City.Datapack.Generator.Builder.Roads;
+
+public record RoadZone(DirectoryInfo Directory, string Name)
+{
+	public RoadZone? NextZone { get; set; }
+
+	public FileInfo[] GetFiles() => Directory.GetFiles();
+}
