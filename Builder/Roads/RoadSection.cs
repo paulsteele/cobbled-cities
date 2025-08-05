@@ -184,19 +184,11 @@ public class RoadSection : AbstractSection
 			jigsaw.SetJigsawName($"poke-cities:{baseFileName}-{Index}-{jigsaw.OriginalLocation.SerializedString}");
 			if (jigsaw.IsBuilding)
 			{
-				// var jigsawWorldPosition = jigsaw.OriginalLocation;
-				// var distanceFromCenter = Math.Sqrt(
-				// 	Math.Pow(jigsawWorldPosition.X - structureCenter.X, 2) + 
-				// 	Math.Pow(jigsawWorldPosition.Z - structureCenter.Z, 2)
-				// );
-				//
+				var distance = Math.Sqrt(
+					Math.Pow(jigsaw.OriginalLocation.X - roadZone.Origin.X, 2) + 
+					Math.Pow(jigsaw.OriginalLocation.Z - roadZone.Origin.Z, 2)
+				);
 
-				var distance = roadZone.Name switch
-				{
-					"centers" => 20,
-					"cardinals" => 100,
-					_ => 600
-				};
 				var buildingZone = buildingZoneService.GetZoneByDistance(distance);
 				jigsaw.SetJigsawPool($"poke-cities:{buildingZone.Name}");
 				jigsaw.SetJigsawTarget($"poke-cities:buildings-start");

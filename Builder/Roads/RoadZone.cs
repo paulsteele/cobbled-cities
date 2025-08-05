@@ -1,6 +1,8 @@
-﻿namespace Minecraft.City.Datapack.Generator.Builder.Roads;
+﻿using Minecraft.City.Datapack.Generator.Models.IlNodes;
 
-public record RoadZone(DirectoryInfo Directory, string Name)
+namespace Minecraft.City.Datapack.Generator.Builder.Roads;
+
+public record RoadZone(DirectoryInfo Directory, string Name, IlPoint Origin)
 {
 	public RoadZone? NextZone { get; set; }
 

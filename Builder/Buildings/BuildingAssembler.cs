@@ -6,7 +6,7 @@ namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
 public class BuildingAssembler(JsonWriter writer, IBuildingZoneService buildingZoneService) : IAssembler
 {
 	private const int MinHeight = 3;
-	private const int MaxHeight = 10;
+	private const int MaxHeight = 20;
 
 	public void Assemble()
 	{

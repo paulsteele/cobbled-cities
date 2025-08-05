@@ -1,5 +1,6 @@
 using fNbt;
 using Minecraft.City.Datapack.Generator.Builder.Buildings;
+using Minecraft.City.Datapack.Generator.Models.IlNodes;
 using Minecraft.City.Datapack.Generator.Models.Structure;
 using Minecraft.City.Datapack.Generator.Models.StructureSet;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;
@@ -12,9 +13,9 @@ public class RoadAssembler(JsonWriter writer, IBuildingZoneService buildingZoneS
 {
 	public void Assemble()
 	{
-		var centers = new RoadZone(new DirectoryInfo("../../../nbts/centers"), "centers");
-		var cardinals = new RoadZone(new DirectoryInfo("../../../nbts/cardinals"), "cardinals");
-		var inters = new RoadZone(new DirectoryInfo("../../../nbts/inters"), "inters");
+		var centers = new RoadZone(new DirectoryInfo("../../../nbts/centers"), "centers", new IlPoint(85, 85)); // 170, 170
+		var cardinals = new RoadZone(new DirectoryInfo("../../../nbts/cardinals"), "cardinals", new IlPoint(85,  170 + 94)); // 170, 187
+		var inters = new RoadZone(new DirectoryInfo("../../../nbts/inters"), "inters", new IlPoint(-85, 136 + 85)); // 136, 136
 
 		centers.NextZone = cardinals;
 		cardinals.NextZone = inters;
