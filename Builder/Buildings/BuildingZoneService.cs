@@ -8,9 +8,9 @@ public interface IBuildingZoneService
 
 public class BuildingZoneService : IBuildingZoneService
 {
-	private readonly BuildingZone _centralZone = new("buildings-central", 20, 20, 4 * 16);
-	private readonly BuildingZone _urbanZone = new("buildings-urban", 10, 10, 9 * 16);
-	private readonly BuildingZone _residentialZone = new("buildings-residential", 3, 3, int.MaxValue);
+	private readonly BuildingZone _centralZone = new("buildings-central", 6, 10, 4 * 16);
+	private readonly BuildingZone _urbanZone = new("buildings-urban", 4, 6, 9 * 16);
+	private readonly BuildingZone _residentialZone = new("buildings-residential", 3, 4, int.MaxValue);
 
 	public IReadOnlyList<BuildingZone> Zones => [_centralZone, _urbanZone, _residentialZone];
 
