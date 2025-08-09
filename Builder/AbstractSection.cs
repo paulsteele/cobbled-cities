@@ -1,3 +1,4 @@
+using System.Security.AccessControl;
 using fNbt;
 using Minecraft.City.Datapack.Generator.Builder.Jigsaw;
 using Minecraft.City.Datapack.Generator.Models.IlNodes;
@@ -20,8 +21,9 @@ public abstract class AbstractSection
 			throw new ArgumentException($"{nameof(RootTag)} does not have any blocks");
 		}
 
-		TileMap = InitBlocks(blocks);
 		InitPalette(RootTag);
+		ConvertBuildingBlocksToJigsaws(RootTag, blocks);
+		TileMap = InitBlocks(blocks);
 		InitJigsaws();
 	}
 
@@ -225,5 +227,23 @@ public abstract class AbstractSection
 		var orientationNode = new NbtString("orientation", orientation.GetGameName());
 		var properties = new NbtCompound("Properties", new[] { orientationNode });
 		return new NbtCompound(new List<NbtTag> {properties, name});
+	}
+
+	private void ConvertBuildingBlocksToJigsaws(NbtCompound rootTag, NbtList blocks)
+	{
+		foreach (var block in blocks)
+		{
+			if (block is not NbtCompound compound)
+			{
+				continue;
+			}
+
+			var name = compound.GetPaletteTag(rootTag, "Name");
+
+			if (name.StartsWith("cobbledcitiesblocks"))
+			{
+				compound.MakeJigsaw();
+			}
+		}
 	}
 }

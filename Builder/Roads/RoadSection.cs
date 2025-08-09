@@ -50,7 +50,7 @@ public class RoadSection : AbstractSection
 	{
 		foreach (var jigsaw in Jigsaws.Values)
 		{
-			jigsaw.IsBuilding = jigsaw.TileType == JigsawTileType.Up;
+			jigsaw.IsBuilding = jigsaw.TileType == JigsawTileType.Building;
 		}
 	}
 	
@@ -310,7 +310,7 @@ public class RoadSection : AbstractSection
 					case JigsawTileType.West when allowedToTakeJigsaw:
 						allowedToTakeJigsaw = false;
 						break;
-					case JigsawTileType.Up:
+					case JigsawTileType.Building:
 						break;
 					default:
 						return new IlPoint(startingX, startingZ);

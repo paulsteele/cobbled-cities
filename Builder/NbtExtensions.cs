@@ -84,6 +84,21 @@ public static class NbtExtensions
 
 		return tags.All(s => nbt.Contains(s));
 	}
+	
+	public static void MakeJigsaw(this NbtCompound compound)
+	{
+		var nbt = new NbtCompound("nbt")
+		{
+			["joint"] = new NbtString("joint", "self"),
+			["name"] = new NbtString("name", "minecraft:empty"),
+			["pool"] = new NbtString("pool", "minecraft:empty"),
+			["final_state"] = new NbtString("final_state", "minecraft:empty"),
+			["id"] = new NbtString("id", "minecraft:jigsaw"),
+			["target"] = new NbtString("target", "minecraft:empty")
+		};
+
+		compound["nbt"] = nbt;
+	}
 
 	private static NbtTag GetRoot(this NbtTag tag)
 	{
@@ -115,22 +130,30 @@ public static class NbtExtensions
 		return compound.Get<NbtList>("palette") ?? new NbtList();
 	}
 
-	public static string GetPaletteTag(this NbtCompound block, NbtCompound root, string tag)
+	public static string GetPalettePropertiesTag(this NbtCompound block, NbtCompound root, string tag)
 	{
 		var state = block.GetState();
 		var palette = root.GetPalette();
 
-		if (palette.Count < state)
-		{
-			return string.Empty;
-		}
-
-		if (palette[state] is not NbtCompound paletteCompound)
+		if (palette.Count < state || palette[state] is not NbtCompound paletteCompound)
 		{
 			return string.Empty;
 		}
 
 		return paletteCompound.Get<NbtCompound>("Properties")?.Get<NbtString>(tag)?.Value ?? string.Empty;
 
+	}
+	
+	public static string GetPaletteTag(this NbtCompound block, NbtCompound root, string tag)
+	{
+		var state = block.GetState();
+		var palette = root.GetPalette();
+
+		if (palette.Count < state || palette[state] is not NbtCompound paletteCompound)
+		{
+			return string.Empty;
+		}
+
+		return paletteCompound.Get<NbtString>(tag)?.Value ?? string.Empty;
 	}
 }
