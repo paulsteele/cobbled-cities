@@ -1,8 +1,10 @@
+using Minecraft.City.Datapack.Generator.Builder.Jigsaw;
+
 namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
 
 public record BuildingZone
 {
-	public string Name { get; }
+	private string Name { get; }
 	public int MinHeight { get; }
 	public int MaxHeight { get; }
 	public int MaxDistanceFromCenter { get; }
@@ -34,4 +36,6 @@ public record BuildingZone
 		MaxHeight = maxHeight;
 		MaxDistanceFromCenter = maxDistanceFromCenter;
 	}
+	
+	public string GetNameForType(JigsawTileType type) => $"{Name}-{type.GetBuildingTypeComparisonName()}";
 }

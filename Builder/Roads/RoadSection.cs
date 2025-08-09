@@ -178,7 +178,7 @@ public class RoadSection : AbstractSection
 				);
 
 				var buildingZone = buildingZoneService.GetZoneByDistance(distance);
-				jigsaw.SetJigsawPool($"poke-cities:{buildingZone.Name}");
+				jigsaw.SetJigsawPool($"poke-cities:{buildingZone.GetNameForType(jigsaw.TileType)}");
 				jigsaw.SetJigsawTarget($"poke-cities:buildings-start");
 				continue;
 			}

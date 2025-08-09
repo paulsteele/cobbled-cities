@@ -1,10 +1,36 @@
 using Combinatorics.Collections;
 using fNbt;
+using Minecraft.City.Datapack.Generator.Builder.Jigsaw;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
 
-public class DynamicBuilding(string name, BuildingSection[] bottoms, BuildingSection[] mids, BuildingSection[] tops)
+public class DynamicBuilding
 {
+	private readonly string _name;
+	private readonly BuildingSection[] _bottoms;
+	private readonly BuildingSection[] _mids;
+	private readonly BuildingSection[] _tops;
+	private readonly JigsawTileType _jigsawTileType;
+
+	private DynamicBuilding(string name, BuildingSection[] bottoms, BuildingSection[] mids, BuildingSection[] tops)
+	{
+		_name = name;
+		_bottoms = bottoms;
+		_mids = mids;
+		_tops = tops;
+
+		foreach (var buildingType in JigsawTileTypeExtensions.BuildingTypes)
+		{
+			if (!name.Contains(buildingType.GetBuildingTypeComparisonName()))
+			{
+				continue;
+			}
+
+			_jigsawTileType = buildingType;
+			return;
+		}
+	}
+
 	private const string DynamicInputPath = "../../../nbts/buildings/dynamic";
 	private const string DynamicBuildingBottomName = "bottom";
 	private const string DynamicBuildingMidName = "mid";
@@ -81,13 +107,14 @@ public class DynamicBuilding(string name, BuildingSection[] bottoms, BuildingSec
 			building.UpdateJigsaws();
 			building.FillEmptySpace();
 			
-			var fileName = $"{name}-h{height}-{counter}";
+			var fileName = $"{_name}-h{height}-{counter}";
 			building.SaveNbt(fileName);
 			
 			yield return new BuildingInfo
 			{
 				Name = fileName,
-				Height = height
+				Height = height,
+				JigsawTileType = _jigsawTileType,
 			};
 		}
 	}
@@ -97,7 +124,7 @@ public class DynamicBuilding(string name, BuildingSection[] bottoms, BuildingSec
 		var bottomAndTops = GetBottomAndTops();
 		var midHeight = height - 2;
 
-		var midVariations = new Variations<BuildingSection>(mids, midHeight + 1, GenerateOption.WithRepetition)
+		var midVariations = new Variations<BuildingSection>(_mids, midHeight + 1, GenerateOption.WithRepetition)
 			.Select(bs => bs)
 			.ToArray();
 		
@@ -117,8 +144,8 @@ public class DynamicBuilding(string name, BuildingSection[] bottoms, BuildingSec
 	private IEnumerable<(BuildingSection bottom, BuildingSection top)> GetBottomAndTops()
 	{
 		return 
-			from bottom in bottoms 
-			from top in tops 
+			from bottom in _bottoms 
+			from top in _tops 
 			select (bottom, top);
 	}
 	

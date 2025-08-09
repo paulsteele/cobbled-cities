@@ -114,4 +114,16 @@ public static class JigsawTileTypeExtensions
 			_ => throw new ArgumentOutOfRangeException($"{nameof(tileType)}: {tileType} not supported value")
 		};
 	}
+
+	public static readonly JigsawTileType[] BuildingTypes = 
+	[
+		JigsawTileType.BuildingNormal,
+		JigsawTileType.BuildingCorner,
+		JigsawTileType.BuildingLong
+	];
+	
+	public static string GetBuildingTypeComparisonName(this JigsawTileType tileType)
+	{
+		return tileType.ToString().ToLower().Replace("Building", string.Empty);
+	}
 }

@@ -1,3 +1,4 @@
+using Minecraft.City.Datapack.Generator.Builder.Jigsaw;
 using Minecraft.City.Datapack.Generator.Models.TemplatePool;
 using Minecraft.City.Datapack.Generator.Writers;
 
@@ -16,9 +17,12 @@ public class BuildingAssembler(JsonWriter writer, IBuildingZoneService buildingZ
 
 		foreach (var zone in buildingZoneService.Zones)
 		{
-			var zoneBuildings = dynamicBuildingNames.Where(b => b.Height >= zone.MinHeight && b.Height <= zone.MaxHeight);
-			var templatePool = CreateTemplatePool(zone.Name, zoneBuildings);
-			writer.Serialize(templatePool);
+			foreach (var jigsawTileType in JigsawTileTypeExtensions.BuildingTypes)
+			{
+				var zoneBuildings = dynamicBuildingNames.Where(b => b.Height >= zone.MinHeight && b.Height <= zone.MaxHeight && b.JigsawTileType == jigsawTileType);
+				var templatePool = CreateTemplatePool(zone.GetNameForType(jigsawTileType), zoneBuildings);
+				writer.Serialize(templatePool);
+			}
 		}
 	}
 
