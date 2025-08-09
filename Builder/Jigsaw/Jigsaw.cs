@@ -1,5 +1,4 @@
 using fNbt;
-using Minecraft.City.Datapack.Generator.Builder.Roads;
 using Minecraft.City.Datapack.Generator.Models.IlNodes;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Jigsaw;
@@ -13,7 +12,11 @@ public class Jigsaw
 	public NbtCompound Compound { get; }
 	public bool PointsToOutside { get; set; }
 	public bool PointsFromOutside { get; set; }
-	public bool IsBuilding { get; set; }
+
+	public bool IsBuilding => TileType
+		is JigsawTileType.BuildingNormal
+		or JigsawTileType.BuildingCorner
+		or JigsawTileType.BuildingLong;
 
 	public Jigsaw(NbtCompound compound, NbtCompound rootTag, IlPoint location)
 	{

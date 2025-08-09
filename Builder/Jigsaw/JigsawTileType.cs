@@ -8,7 +8,9 @@ public enum JigsawTileType
 	East,
 	South,
 	West,
-	Building
+	BuildingNormal,
+	BuildingCorner,
+	BuildingLong
 }
 
 public static class JigsawTileTypeExtensions
@@ -23,8 +25,19 @@ public static class JigsawTileTypeExtensions
 			"south_up" => JigsawTileType.South,
 			"west_up" => JigsawTileType.West,
 			"east_up" => JigsawTileType.East,
-			"" => JigsawTileType.Building,
-			_ => throw new ArgumentOutOfRangeException($"{nameof(orientation)}: {orientation} not supported value")
+			_ => GetJigsawBuildingType(compound, rootTag),
+		};
+	}
+	
+	private static JigsawTileType GetJigsawBuildingType(NbtCompound compound, NbtCompound rootTag)
+	{
+		var name = compound.GetPaletteTag(rootTag, "Name");
+		return name switch
+		{
+			"cobbledcitiesblocks:building_block" => JigsawTileType.BuildingNormal,
+			"cobbledcitiesblocks:long_building_block" => JigsawTileType.BuildingLong,
+			"cobbledcitiesblocks:corner_building_block" => JigsawTileType.BuildingCorner,
+			_ => throw new ArgumentOutOfRangeException($"could not determine {nameof(JigsawTileType)} from {name} {compound}")
 		};
 	}
 	
@@ -60,12 +73,6 @@ public static class JigsawTileTypeExtensions
 				case "west_up":
 					dictionary.Add(JigsawTileType.West, index);
 					break;
-				case "up_north":
-				case "up_south":
-				case "up_east":
-				case "up_west":
-					dictionary.TryAdd(JigsawTileType.Building, index);
-					break;
 			}
 		}
 
@@ -80,7 +87,6 @@ public static class JigsawTileTypeExtensions
 			JigsawTileType.East => (1, 0),
 			JigsawTileType.South => (0, 1),
 			JigsawTileType.West => (-1, 0),
-			JigsawTileType.Building => (0, 0),
 			_ => (-1, -1)
 		};
 	}

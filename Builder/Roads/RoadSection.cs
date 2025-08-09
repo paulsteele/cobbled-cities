@@ -18,39 +18,27 @@ public class RoadSection : AbstractSection
 	{
 		Index = index;
 
-		if (rootJigsaws != null)
+		if (rootJigsaws == null)
 		{
-			foreach (var jigsawsValue in Jigsaws.Values)
+			return;
+		}
+		foreach (var jigsawsValue in Jigsaws.Values)
+		{
+			if (boundingBox != null)
 			{
-				if (boundingBox != null)
-				{
-					jigsawsValue.OriginalLocation = new IlPoint(
-						jigsawsValue.Location.X + boundingBox.MinPoint.X,
-						jigsawsValue.Location.Z + boundingBox.MinPoint.Z
-					);
-				}
-	
-				if (!rootJigsaws.TryGetValue(jigsawsValue.OriginalLocation, out var rootJigsaw))
-				{
-					continue;
-				}
-				jigsawsValue.PointingToLocation = rootJigsaw.PointingToLocation;
-				jigsawsValue.PointsToOutside = rootJigsaw.PointsToOutside;
-				jigsawsValue.PointsFromOutside = rootJigsaw.PointsFromOutside;
-				jigsawsValue.IsBuilding = rootJigsaw.IsBuilding;
+				jigsawsValue.OriginalLocation = new IlPoint(
+					jigsawsValue.Location.X + boundingBox.MinPoint.X,
+					jigsawsValue.Location.Z + boundingBox.MinPoint.Z
+				);
 			}
-		}
-		else
-		{
-			MarkBuildingJigsaws();
-		}
-	}
-
-	private void MarkBuildingJigsaws()
-	{
-		foreach (var jigsaw in Jigsaws.Values)
-		{
-			jigsaw.IsBuilding = jigsaw.TileType == JigsawTileType.Building;
+	
+			if (!rootJigsaws.TryGetValue(jigsawsValue.OriginalLocation, out var rootJigsaw))
+			{
+				continue;
+			}
+			jigsawsValue.PointingToLocation = rootJigsaw.PointingToLocation;
+			jigsawsValue.PointsToOutside = rootJigsaw.PointsToOutside;
+			jigsawsValue.PointsFromOutside = rootJigsaw.PointsFromOutside;
 		}
 	}
 	
@@ -310,7 +298,9 @@ public class RoadSection : AbstractSection
 					case JigsawTileType.West when allowedToTakeJigsaw:
 						allowedToTakeJigsaw = false;
 						break;
-					case JigsawTileType.Building:
+					case JigsawTileType.BuildingNormal:
+					case JigsawTileType.BuildingLong:
+					case JigsawTileType.BuildingCorner:
 						break;
 					default:
 						return new IlPoint(startingX, startingZ);
@@ -363,5 +353,4 @@ public class RoadSection : AbstractSection
 			}
 		);
 	}
-
 }
