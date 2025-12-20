@@ -240,7 +240,11 @@ public abstract class AbstractSection
 
 			var name = compound.GetPaletteTag(rootTag, "Name");
 
-			if (name.StartsWith("cobbledcitiesblocks"))
+			if (
+				name.StartsWith("cobbledcitiesblocks:building_block") ||
+				name.StartsWith("cobbledcitiesblocks:long_building_block") ||
+				name.StartsWith("cobbledcitiesblocks:corner_building_block")
+				)
 			{
 				compound.MakeJigsaw();
 			}
