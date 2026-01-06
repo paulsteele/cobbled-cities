@@ -169,7 +169,7 @@ public class RoadSection : AbstractSection
 
 		foreach (var jigsaw in Jigsaws.Values)
 		{
-			jigsaw.SetJigsawName($"poke-cities:{baseFileName}-{Index}-{jigsaw.OriginalLocation.SerializedString}");
+			jigsaw.SetJigsawName($"cobbled-cities:{baseFileName}-{Index}-{jigsaw.OriginalLocation.SerializedString}");
 			if (jigsaw.IsBuilding)
 			{
 				var distance = Math.Sqrt(
@@ -178,8 +178,8 @@ public class RoadSection : AbstractSection
 				);
 
 				var buildingZone = buildingZoneService.GetZoneByDistance(distance);
-				jigsaw.SetJigsawPool($"poke-cities:{buildingZone.GetNameForType(jigsaw.TileType)}");
-				jigsaw.SetJigsawTarget($"poke-cities:buildings-start");
+				jigsaw.SetJigsawPool($"cobbled-cities:{buildingZone.GetNameForType(jigsaw.TileType)}");
+				jigsaw.SetJigsawTarget($"cobbled-cities:buildings-start");
 				continue;
 			}
 			if (
@@ -189,20 +189,20 @@ public class RoadSection : AbstractSection
 			{
 				if (jigsaw.PointsToOutside)
 				{
-					jigsaw.SetJigsawPool($"poke-cities:{roadZone.NextZone?.Name}");
-					jigsaw.SetJigsawTarget($"poke-cities:{roadZone.NextZone?.Name}-start");
+					jigsaw.SetJigsawPool($"cobbled-cities:{roadZone.NextZone?.Name}");
+					jigsaw.SetJigsawTarget($"cobbled-cities:{roadZone.NextZone?.Name}-start");
 				}
 
 				if (jigsaw.PointsFromOutside)
 				{
-					jigsaw.SetJigsawName($"poke-cities:{roadZone.Name}-start");
+					jigsaw.SetJigsawName($"cobbled-cities:{roadZone.Name}-start");
 				}
 				continue;
 			}
 
-			jigsaw.SetJigsawPool($"poke-cities:{baseFileName}-{pointIndex}");
+			jigsaw.SetJigsawPool($"cobbled-cities:{baseFileName}-{pointIndex}");
 			jigsaw.SetJigsawTarget(
-				$"poke-cities:{baseFileName}-{pointIndex}-{jigsaw.PointingToLocation.SerializedString}");
+				$"cobbled-cities:{baseFileName}-{pointIndex}-{jigsaw.PointingToLocation.SerializedString}");
 		}
 	}
 
@@ -325,7 +325,7 @@ public class RoadSection : AbstractSection
 
 	public string SaveNbt(string fileName, string typeName)
 	{
-		var outputPath = $"output/data/poke-cities/structure/{typeName}";
+		var outputPath = $"output/data/cobbled-cities/structure/{typeName}";
 		if (!Directory.Exists(outputPath))
 		{
 			Directory.CreateDirectory(outputPath);
@@ -345,11 +345,11 @@ public class RoadSection : AbstractSection
 	public TemplatePool CreateTemplatePool(string fileName, string typeName)
 	{
 		return new TemplatePool(
-			"data/poke-cities/worldgen/template_pool",
+			"data/cobbled-cities/worldgen/template_pool",
 			$"{fileName}-{Index}",
 			new[]
 			{
-				new TemplatePoolElementWeight($"poke-cities:{typeName}/{fileName}-{Index}", 1)
+				new TemplatePoolElementWeight($"cobbled-cities:{typeName}/{fileName}-{Index}", 1)
 			}
 		);
 	}

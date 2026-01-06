@@ -25,39 +25,39 @@ public class RoadAssembler(JsonWriter writer, IBuildingZoneService buildingZoneS
 		var interStartingSections = AssembleType(inters);
 		
 		var startingPool = new TemplatePool(
-			"data/poke-cities/worldgen/template_pool",
-			$"poke-cities",
+			"data/cobbled-cities/worldgen/template_pool",
+			$"cobbled-cities",
 			centerStartingSections.Select(
-				s => new TemplatePoolElementWeight($"poke-cities:{nameof(centers)}/{s.name}-{s.section.Index}", 1)
+				s => new TemplatePoolElementWeight($"cobbled-cities:{nameof(centers)}/{s.name}-{s.section.Index}", 1)
 			)
 		);
 		
 		var cardinalsPool = new TemplatePool(
-			"data/poke-cities/worldgen/template_pool",
+			"data/cobbled-cities/worldgen/template_pool",
 			$"cardinals",
 			cardinalStartingSections.Select(
-				s => new TemplatePoolElementWeight($"poke-cities:{nameof(cardinals)}/{s.name}-{s.section.Index}", 1)
+				s => new TemplatePoolElementWeight($"cobbled-cities:{nameof(cardinals)}/{s.name}-{s.section.Index}", 1)
 			)
 		);
 		
 		var intersPool = new TemplatePool(
-			"data/poke-cities/worldgen/template_pool",
+			"data/cobbled-cities/worldgen/template_pool",
 			$"inters",
 			interStartingSections.Select(
-				s => new TemplatePoolElementWeight($"poke-cities:{nameof(inters)}/{s.name}-{s.section.Index}", 1)
+				s => new TemplatePoolElementWeight($"cobbled-cities:{nameof(inters)}/{s.name}-{s.section.Index}", 1)
 			)
 		);
 		
 		var structure = new Structure
 		(
-			"data/poke-cities/worldgen/structure",
+			"data/cobbled-cities/worldgen/structure",
 			"poke-city",
 			startingPool
 		);
 		
 		var cityStructure = new StructureSet
 		(
-			"data/poke-cities/worldgen/structure_set",
+			"data/cobbled-cities/worldgen/structure_set",
 			"poke-city",
 			128,
 			64,

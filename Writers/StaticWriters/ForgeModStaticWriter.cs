@@ -11,11 +11,11 @@ loaderVersion="[1,)"
 license="MIT"
 
 [[mods]]
-modId="poke_cities"
+modId="cobbledcities"
 version="1.0"
-displayName="Poke Cities"
+displayName="Cobbled Cities"
 description='''
-Spawn Poke Cities Around Minecraft!
+Spawn Cities Around Minecraft!
 '''
 """;
 }

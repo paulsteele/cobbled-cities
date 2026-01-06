@@ -9,7 +9,7 @@ public class TemplatePool : IWriteableData
 	{
 		Path = path;
 		FileName = name;
-		Name = $"poke-cities:{name}";
+		Name = $"cobbled-cities:{name}";
 		Elements = elementWeights.ToArray();
 	}
 

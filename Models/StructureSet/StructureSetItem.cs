@@ -7,7 +7,7 @@ public class StructureSetItem
 	// ReSharper disable once SuggestBaseTypeForParameterInConstructor
 	public StructureSetItem(Models.Structure.Structure structure, int weight)
 	{
-		Structure = $"poke-cities:{structure.FileName}";
+		Structure = $"cobbled-cities:{structure.FileName}";
 		Weight = weight;
 	}
 

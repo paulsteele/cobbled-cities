@@ -29,10 +29,10 @@ public class BuildingAssembler(JsonWriter writer, IBuildingZoneService buildingZ
 	private TemplatePool CreateTemplatePool(string fileName, IEnumerable<BuildingInfo> dynamicBuildings)
 	{
 		return new TemplatePool(
-			"data/poke-cities/worldgen/template_pool",
+			"data/cobbled-cities/worldgen/template_pool",
 			$"{fileName}",
 			dynamicBuildings.Select(building => 
-				new TemplatePoolElementWeight($"poke-cities:buildings/{building.Name}", 1)
+				new TemplatePoolElementWeight($"cobbled-cities:buildings/{building.Name}", 1)
 			).ToArray()
 		);
 	}

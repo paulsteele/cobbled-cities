@@ -6,7 +6,7 @@ public class BuildingSection(NbtCompound rootTag) : AbstractSection(rootTag)
 {
 	public string SaveNbt(string fileName)
 	{
-		var outputPath = $"output/data/poke-cities/structure/buildings";
+		var outputPath = $"output/data/cobbled-cities/structure/buildings";
 		if (!Directory.Exists(outputPath))
 		{
 			Directory.CreateDirectory(outputPath);
@@ -27,9 +27,9 @@ public class BuildingSection(NbtCompound rootTag) : AbstractSection(rootTag)
 	{
 		foreach (var jigsaw in Jigsaws.Values)
 		{
-			jigsaw.SetJigsawName("poke-cities:buildings-start");
-			// jigsaw.SetJigsawPool($"poke-cities:buildings");
-			// jigsaw.SetJigsawTarget($"poke-cities:buildings-start");
+			jigsaw.SetJigsawName("cobbled-cities:buildings-start");
+			// jigsaw.SetJigsawPool($"cobbled-cities:buildings");
+			// jigsaw.SetJigsawTarget($"cobbled-cities:buildings-start");
 		}
 	}
 

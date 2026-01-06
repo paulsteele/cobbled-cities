@@ -6,7 +6,7 @@ public class JarWriter
 {
 	public void CreateJar()
 	{
-		const string jarFile = "poke-cities.jar";
+		const string jarFile = "cobbled-cities.jar";
 		if (File.Exists(jarFile))
 		{
 			File.Delete(jarFile);
