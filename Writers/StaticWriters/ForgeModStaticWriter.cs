@@ -15,7 +15,7 @@ modId="cobbledcities"
 version="1.0"
 displayName="Cobbled Cities"
 description='''
-Spawn Cities Around Minecraft!
+Spawn cities around Minecraft!
 '''
 """;
 }
