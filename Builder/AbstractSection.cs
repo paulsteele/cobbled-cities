@@ -124,8 +124,23 @@ public abstract class AbstractSection
 	public void DebugPrint()
 	{
 		Console.WriteLine("======================================");
+
+		// Print X-axis header (hex: 0-9, A-F)
+		Console.Write("     ");
+		for (var x = 0; x < MaxX; x++)
+		{
+			Console.Write($"{x % 16:X}");
+		}
+		Console.WriteLine();
+
+		// Print separator
+		Console.Write("   +-");
+		Console.WriteLine(new string('-', MaxX));
+
+		// Print grid with Z-axis labels
 		for (var z = 0; z < MaxZ; z++)
 		{
+			Console.Write($"{z,2} | ");
 			for (var x = 0; x < MaxX; x++)
 			{
 				if (!TileMap[x, z])
@@ -155,6 +170,36 @@ public abstract class AbstractSection
 
 			Console.WriteLine();
 		}
+
+		// Print jigsaw details table
+		const int jigsawColumnWidth = 50;
+		var jigsawColumnDashes = new string('-', jigsawColumnWidth);
+
+		Console.WriteLine("--------------------------------------");
+		Console.WriteLine($"Jigsaws ({Jigsaws.Count} total):");
+		Console.WriteLine($"Location   | TileType | {"Name",-jigsawColumnWidth} | {"Pool",-jigsawColumnWidth} | Target");
+		Console.WriteLine($"-----------+----------+{jigsawColumnDashes}--+{jigsawColumnDashes}--+{jigsawColumnDashes}");
+
+		foreach (var (location, jigsaw) in Jigsaws.OrderBy(j => j.Key.Z).ThenBy(j => j.Key.X))
+		{
+			var locationStr = $"({location.X}, {location.Z})".PadRight(10);
+			var tileTypeStr = (jigsaw.IsBuilding ? "Building" : jigsaw.TileType.ToString()).PadRight(8);
+			var nameStr = TruncateOrPad(jigsaw.GetJigsawName(), jigsawColumnWidth);
+			var poolStr = TruncateOrPad(jigsaw.GetJigsawPool(), jigsawColumnWidth);
+			var targetStr = TruncateOrPad(jigsaw.GetJigsawTarget(), jigsawColumnWidth);
+
+			Console.WriteLine($"{locationStr} | {tileTypeStr} | {nameStr} | {poolStr} | {targetStr}");
+		}
+	}
+
+	private static string TruncateOrPad(string value, int length)
+	{
+		if (string.IsNullOrEmpty(value))
+		{
+			return new string(' ', length);
+		}
+
+		return value.Length > length ? value[..length] : value.PadRight(length);
 	}
 	
 	public void FillEmptySpace()

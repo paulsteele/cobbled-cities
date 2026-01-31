@@ -46,6 +46,16 @@ public class Jigsaw
 		SetNbtField("target", value);
 	}
 
+	public string GetJigsawName() => GetNbtField("name");
+	public string GetJigsawPool() => GetNbtField("pool");
+	public string GetJigsawTarget() => GetNbtField("target");
+
+	private string GetNbtField(string fieldName)
+	{
+		var nbt = Compound.Get<NbtCompound>("nbt");
+		return nbt?.Get<NbtString>(fieldName)?.Value ?? string.Empty;
+	}
+
 	private void SetNbtField(string fieldName, string value)
 	{
 		var nbt = Compound.Get<NbtCompound>("nbt");
