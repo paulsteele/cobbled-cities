@@ -250,4 +250,37 @@ public abstract class AbstractSection
 			}
 		}
 	}
+	
+	public void RotateBuildingJigsaws()
+	{
+		var states = RootTag.GetTypeStateIds();
+		var north = states[JigsawTileType.North];
+		var east = states[JigsawTileType.East];
+		var south = states[JigsawTileType.South];
+		var west = states[JigsawTileType.West];
+
+		foreach (var jigsaw in Jigsaws.Values.Where(j => j.IsBuilding))
+		{
+			var pos = jigsaw.Location;
+			
+			var maxX = MaxX - 1;
+			var maxZ = MaxZ - 1;
+			
+			var state = pos switch
+			{
+				{ X: 0, Z: 0 } => throw new ArgumentException($"Building jigsaw in corner {pos} not allowed"),
+				_ when pos.X == 0 && pos.Z == maxZ => throw new ArgumentException($"Building jigsaw in corner {pos} not allowed"),
+				_ when pos.X == maxX && pos.Z == 0 => throw new ArgumentException($"Building jigsaw in corner {pos} not allowed"),
+				_ when pos.X == maxX && pos.Z == maxZ => throw new ArgumentException($"Building jigsaw in corner {pos} not allowed"),
+				_ when pos.X == 0 => west,
+				_ when pos.X == maxX => east,
+				_ when pos.Z == 0 => north,
+				_ when pos.Z == maxZ => south,
+				_ => throw new ArgumentException($"Building jigsaw at {pos} not on edge")
+			};
+			
+			jigsaw.Compound.SetState(state);
+		}
+	}
+
 }

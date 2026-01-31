@@ -99,8 +99,10 @@ public class DynamicBuilding
 			counter++;
 			var building = set.Aggregate(AddNbtToTop);
 			
+			building.RotateBuildingJigsaws();
 			building.UpdateJigsaws();
 			building.FillEmptySpace();
+			building.DebugPrint();
 			
 			var fileName = $"{_name}-h{height}-{counter}";
 			building.SaveNbt(fileName);
