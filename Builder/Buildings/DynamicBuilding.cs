@@ -10,25 +10,15 @@ public class DynamicBuilding
 	private readonly BuildingSection[] _bottoms;
 	private readonly BuildingSection[] _mids;
 	private readonly BuildingSection[] _tops;
-	private readonly JigsawTileType _jigsawTileType;
+	private readonly JigsawTileType _jigsawJigsawTileType;
 
-	private DynamicBuilding(string name, BuildingSection[] bottoms, BuildingSection[] mids, BuildingSection[] tops)
+	private DynamicBuilding(string name, JigsawTileType jigsawTileType, BuildingSection[] bottoms, BuildingSection[] mids, BuildingSection[] tops)
 	{
 		_name = name;
 		_bottoms = bottoms;
 		_mids = mids;
 		_tops = tops;
-
-		foreach (var buildingType in JigsawTileTypeExtensions.BuildingTypes)
-		{
-			if (!name.Contains(buildingType.GetBuildingTypeFolderName()))
-			{
-				continue;
-			}
-
-			_jigsawTileType = buildingType;
-			return;
-		}
+		_jigsawJigsawTileType = jigsawTileType;
 	}
 
 	private const string DynamicInputPath = "../../../nbts/buildings/dynamic";
@@ -38,21 +28,23 @@ public class DynamicBuilding
 
 	public static IEnumerable<DynamicBuilding> GetAllDynamicBuildings()
 	{
-		var baseDirectory = new DirectoryInfo(DynamicInputPath);
-		if (!baseDirectory.Exists)
+		var subDirectories = JigsawTileTypeExtensions.BuildingTypes
+			.Select(tileType => (directory: new DirectoryInfo($"{DynamicInputPath}/{tileType.GetBuildingTypeFolderName()}"), tileType))
+			.ToLookup(d => d.directory.Exists);
+
+		foreach (var missingDirectoryInfo in subDirectories[false])
 		{
-			return [];
+			Console.Error.WriteLine($"Could not find {missingDirectoryInfo.directory}.");
 		}
 
-		var validTileTypes = JigsawTileTypeExtensions.BuildingTypes.Select(JigsawTileTypeExtensions.GetBuildingTypeFolderName);
-
-		return baseDirectory.GetDirectories()
-			.Select(GetDynamicBuilding)
+		return subDirectories[true]
+			.SelectMany(tuple => tuple.directory.GetDirectories().Select(d => tuple with { directory = d }))
+			.Select(tuple => GetDynamicBuilding(tuple.directory, tuple.tileType))
 			.OfType<DynamicBuilding>()
 			.ToArray();
 	}
 	
-	private static DynamicBuilding? GetDynamicBuilding(DirectoryInfo baseDirectory)
+	private static DynamicBuilding? GetDynamicBuilding(DirectoryInfo baseDirectory, JigsawTileType tileType)
 	{
 		var bottomDirectory = new DirectoryInfo(Path.Combine(baseDirectory.FullName, DynamicBuildingBottomName));
 		var midDirectory = new DirectoryInfo(Path.Combine(baseDirectory.FullName, DynamicBuildingMidName));
@@ -76,6 +68,7 @@ public class DynamicBuilding
 		
 		return new DynamicBuilding(
 			baseDirectory.Name,
+			tileType,
 			GetBuildingSections(bottomFiles),
 			GetBuildingSections(midFiles),
 			GetBuildingSections(topFiles)
@@ -116,7 +109,7 @@ public class DynamicBuilding
 			{
 				Name = fileName,
 				Height = height,
-				JigsawTileType = _jigsawTileType,
+				JigsawTileType = _jigsawJigsawTileType,
 			};
 		}
 	}
