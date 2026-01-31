@@ -37,5 +37,5 @@ public record BuildingZone
 		MaxDistanceFromCenter = maxDistanceFromCenter;
 	}
 	
-	public string GetNameForType(JigsawTileType type) => $"{Name}-{type.GetBuildingTypeComparisonName()}";
+	public string GetNameForType(JigsawTileType type) => $"{Name}-{type.GetBuildingTypeFolderName()}";
 }

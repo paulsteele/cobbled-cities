@@ -13,6 +13,9 @@
       <PackageReference Include="Jab" Version="0.11.0" />
     </ItemGroup>
     <ItemGroup>
+      <Folder Include="nbts\buildings\dynamic\corner\" />
+      <Folder Include="nbts\buildings\dynamic\long\" />
+      <Folder Include="nbts\buildings\dynamic\normal\" />
       <Folder Include="nbts\buildings\static\" />
     </ItemGroup>
 </Project>

@@ -122,8 +122,8 @@ public static class JigsawTileTypeExtensions
 		JigsawTileType.BuildingLong
 	];
 	
-	public static string GetBuildingTypeComparisonName(this JigsawTileType tileType)
+	public static string GetBuildingTypeFolderName(this JigsawTileType tileType)
 	{
-		return tileType.ToString().ToLower().Replace("Building", string.Empty);
+		return tileType.ToString().ToLower().Replace("building", string.Empty);
 	}
 }

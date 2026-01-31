@@ -21,7 +21,7 @@ public class DynamicBuilding
 
 		foreach (var buildingType in JigsawTileTypeExtensions.BuildingTypes)
 		{
-			if (!name.Contains(buildingType.GetBuildingTypeComparisonName()))
+			if (!name.Contains(buildingType.GetBuildingTypeFolderName()))
 			{
 				continue;
 			}
@@ -43,6 +43,8 @@ public class DynamicBuilding
 		{
 			return [];
 		}
+
+		var validTileTypes = JigsawTileTypeExtensions.BuildingTypes.Select(JigsawTileTypeExtensions.GetBuildingTypeFolderName);
 
 		return baseDirectory.GetDirectories()
 			.Select(GetDynamicBuilding)
