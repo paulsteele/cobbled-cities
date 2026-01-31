@@ -62,16 +62,16 @@ public static class JigsawTileTypeExtensions
 			switch (orientation)
 			{
 				case "north_up":
-					dictionary.Add(JigsawTileType.North, index);
+					dictionary.TryAdd(JigsawTileType.North, index);
 					break;
 				case "south_up":
-					dictionary.Add(JigsawTileType.South, index);
+					dictionary.TryAdd(JigsawTileType.South, index);
 					break;
 				case "east_up":
-					dictionary.Add(JigsawTileType.East, index);
+					dictionary.TryAdd(JigsawTileType.East, index);
 					break;
 				case "west_up":
-					dictionary.Add(JigsawTileType.West, index);
+					dictionary.TryAdd(JigsawTileType.West, index);
 					break;
 			}
 		}
