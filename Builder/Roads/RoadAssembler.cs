@@ -51,14 +51,14 @@ public class RoadAssembler(JsonWriter writer, IBuildingZoneService buildingZoneS
 		var structure = new Structure
 		(
 			"data/cobbled-cities/worldgen/structure",
-			"poke-city",
+			"cobbled-city",
 			startingPool
 		);
 		
 		var cityStructure = new StructureSet
 		(
 			"data/cobbled-cities/worldgen/structure_set",
-			"poke-city",
+			"cobbled-city",
 			128,
 			64,
 			[new StructureSetItem(structure, 1)]
