@@ -15,7 +15,7 @@ public class Structure : IWriteableData
 	[JsonIgnore] public string Path { get; }
 	[JsonIgnore] public string FileName { get; }
 
-	[JsonPropertyName("type")] public string Type => "minecraft:jigsaw";
+	[JsonPropertyName("type")] public string Type => "bigsaws:bigsaw";
 	[JsonPropertyName("biomes")] public string Biomes => "#minecraft:is_overworld";
 	[JsonPropertyName("step")] public string Step => "top_layer_modification";
 	[JsonPropertyName("start_pool")] public string StartPool { get; }
