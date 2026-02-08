@@ -10,7 +10,8 @@ public enum JigsawTileType
 	West,
 	BuildingNormal,
 	BuildingCorner,
-	BuildingLong
+	BuildingLong,
+	BuildingLongExtension
 }
 
 public static class JigsawTileTypeExtensions
@@ -91,7 +92,7 @@ public static class JigsawTileTypeExtensions
 		};
 	}
 	
-	public static JigsawTileType FlippedTileType(this JigsawTileType tileType)
+	public static JigsawTileType Rotated180DegreesTileType(this JigsawTileType tileType)
 	{
 		return tileType switch
 		{
@@ -99,6 +100,18 @@ public static class JigsawTileTypeExtensions
 			JigsawTileType.East => JigsawTileType.West,
 			JigsawTileType.South => JigsawTileType.North,
 			JigsawTileType.West => JigsawTileType.East,
+			_ => throw new ArgumentException($"Invalid {nameof(JigsawTileType)} {tileType}")
+		};
+	}
+
+	public static JigsawTileType Rotated90DegreesClockwiseTileType(this JigsawTileType tileType)
+	{
+		return tileType switch
+		{
+			JigsawTileType.North => JigsawTileType.East,
+			JigsawTileType.East => JigsawTileType.South,
+			JigsawTileType.South => JigsawTileType.West,
+			JigsawTileType.West => JigsawTileType.North,
 			_ => throw new ArgumentException($"Invalid {nameof(JigsawTileType)} {tileType}")
 		};
 	}

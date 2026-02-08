@@ -85,14 +85,14 @@ public static class NbtExtensions
 		return tags.All(s => nbt.Contains(s));
 	}
 	
-	public static void MakeJigsaw(this NbtCompound compound)
+	public static void MakeJigsaw(this NbtCompound compound, string finalState = "minecraft:air")
 	{
 		var nbt = new NbtCompound("nbt")
 		{
 			["joint"] = new NbtString("joint", "self"),
 			["name"] = new NbtString("name", "minecraft:empty"),
 			["pool"] = new NbtString("pool", "minecraft:empty"),
-			["final_state"] = new NbtString("final_state", "minecraft:air"),
+			["final_state"] = new NbtString("final_state", finalState),
 			["id"] = new NbtString("id", "minecraft:jigsaw"),
 			["target"] = new NbtString("target", "minecraft:empty")
 		};

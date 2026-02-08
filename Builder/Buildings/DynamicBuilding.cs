@@ -98,20 +98,39 @@ public class DynamicBuilding
 		{
 			counter++;
 			var building = set.Aggregate(AddNbtToTop);
-			
+
 			building.RotateBuildingJigsaws();
 			building.UpdateJigsaws();
+
+			var fileName = $"{_name}-h{height}-{counter}";
+
+			if (_jigsawJigsawTileType == JigsawTileType.BuildingLong)
+			{
+				var extensionName = $"{fileName}-extension";
+
+				var extension = building.SplitLong(extensionName);
+
+				extension.FillEmptySpace();
+				extension.DebugPrint();
+				extension.SaveNbt(extensionName);
+
+				yield return new BuildingInfo
+				{
+					Name = extensionName,
+					Height = height,
+					JigsawTileType = JigsawTileType.BuildingLongExtension
+				};
+			}
+
 			building.FillEmptySpace();
 			building.DebugPrint();
-			
-			var fileName = $"{_name}-h{height}-{counter}";
 			building.SaveNbt(fileName);
-			
+
 			yield return new BuildingInfo
 			{
 				Name = fileName,
 				Height = height,
-				JigsawTileType = _jigsawJigsawTileType,
+				JigsawTileType = _jigsawJigsawTileType
 			};
 		}
 	}

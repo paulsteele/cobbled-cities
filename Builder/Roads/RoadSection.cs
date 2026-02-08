@@ -61,8 +61,7 @@ public class RoadSection : AbstractSection
 		newRootTag.SetNbtDimensions(boundingBox.Width + 1, maxY, boundingBox.Height + 1);
 
 		var tempBlocks = blocks
-			.Where(b => b is NbtCompound)
-			.Cast<NbtCompound>()
+			.OfType<NbtCompound>()
 			.Where(b =>
 			{
 				var pos = b.GetNbtPosition();
@@ -83,21 +82,6 @@ public class RoadSection : AbstractSection
 	}
 	
 	public int Index { get; }
-
-	private bool HasTile(int x, int z)
-	{
-		if (x < 0 || z < 0)
-		{
-			return false;
-		}
-
-		if (x >= MaxX || z >= MaxZ)
-		{
-			return false;
-		}
-
-		return TileMap[x, z];
-	}
 
 	public bool HasSubSections => Jigsaws.Values.Select(j => !j.IsBuilding).Any();
 

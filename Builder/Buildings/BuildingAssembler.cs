@@ -20,13 +20,19 @@ public class BuildingAssembler(JsonWriter writer, IBuildingZoneService buildingZ
 			foreach (var jigsawTileType in JigsawTileTypeExtensions.BuildingTypes)
 			{
 				var zoneBuildings = dynamicBuildingNames.Where(b => b.Height >= zone.MinHeight && b.Height <= zone.MaxHeight && b.JigsawTileType == jigsawTileType);
-				var templatePool = CreateTemplatePool(zone.GetNameForType(jigsawTileType), zoneBuildings);
+				var templatePool = CreateDynamicTemplatePool(zone.GetNameForType(jigsawTileType), zoneBuildings);
 				writer.Serialize(templatePool);
 			}
 		}
+
+		foreach (var extension in dynamicBuildingNames.Where(b => b.JigsawTileType == JigsawTileType.BuildingLongExtension))
+		{
+			var templatePool = CreateExtensionTemplatePool(extension);
+			writer.Serialize(templatePool);
+		}
 	}
 
-	private TemplatePool CreateTemplatePool(string fileName, IEnumerable<BuildingInfo> dynamicBuildings)
+	private static TemplatePool CreateDynamicTemplatePool(string fileName, IEnumerable<BuildingInfo> dynamicBuildings)
 	{
 		return new TemplatePool(
 			"data/cobbled-cities/worldgen/template_pool",
@@ -34,6 +40,17 @@ public class BuildingAssembler(JsonWriter writer, IBuildingZoneService buildingZ
 			dynamicBuildings.Select(building => 
 				new TemplatePoolElementWeight($"cobbled-cities:buildings/{building.Name}", 1)
 			).ToArray()
+		);
+	}
+	
+	private static TemplatePool CreateExtensionTemplatePool(BuildingInfo extension)
+	{
+		return new TemplatePool(
+			"data/cobbled-cities/worldgen/template_pool",
+			$"{extension.Name}",
+			[
+				new TemplatePoolElementWeight($"cobbled-cities:buildings/{extension.Name}", 1)
+			]
 		);
 	}
 }

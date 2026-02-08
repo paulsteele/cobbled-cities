@@ -5,7 +5,7 @@ namespace Minecraft.City.Datapack.Generator.Builder.Jigsaw;
 
 public class Jigsaw
 {  
-	public JigsawTileType TileType { get; private set; }
+	public JigsawTileType TileType { get; set; }
 	public IlPoint Location { get; }
 	public IlPoint OriginalLocation { get; set; }
 	public IlPoint? PointingToLocation { get; set; }
@@ -27,7 +27,7 @@ public class Jigsaw
 
 	public void Flip(Dictionary<JigsawTileType, int> states)
 	{
-		TileType = TileType.FlippedTileType();
+		TileType = TileType.Rotated180DegreesTileType();
 		Compound.SetState(states[TileType]);
 	}
 
