@@ -99,7 +99,7 @@ public class DynamicBuilding
 			counter++;
 			var building = set.Aggregate(AddNbtToTop);
 
-			building.RotateBuildingJigsaws();
+			building.RotateBuildingJigsaws(true);
 			building.UpdateJigsaws();
 
 			var fileName = $"{_name}-h{height}-{counter}";

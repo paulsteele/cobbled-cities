@@ -339,7 +339,7 @@ public abstract class AbstractSection
 		}
 	}
 	
-	public void RotateBuildingJigsaws()
+	public void RotateBuildingJigsaws(bool updateTileType = false)
 	{
 		var states = RootTag.GetTypeStateIds();
 
@@ -363,7 +363,10 @@ public abstract class AbstractSection
 				_ => throw new ArgumentException($"Building jigsaw at {pos} not on edge")
 			};
 
-			jigsaw.TileType = tileType;
+			if (updateTileType)
+			{
+				jigsaw.TileType = tileType;
+			}
 			jigsaw.Compound.SetState(states[tileType]);
 		}
 	}
