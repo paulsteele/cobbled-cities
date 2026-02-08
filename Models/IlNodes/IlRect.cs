@@ -1,3 +1,5 @@
+using Minecraft.City.Datapack.Generator.Builder.Jigsaw;
+
 namespace Minecraft.City.Datapack.Generator.Models.IlNodes;
 
 public class IlRect
@@ -5,17 +7,13 @@ public class IlRect
 	public IlPoint MinPoint { get; set; }
 	public IlPoint MaxPoint { get; set; }
 
-	public IlRect(IlPoint min, IlPoint max)
+	private IlRect(IlPoint min, IlPoint max)
 	{
 		MinPoint = min;
 		MaxPoint = max;
 	}
 
-	public IlRect(int minX, int minZ, int maxX, int maxZ)
-	{
-		MinPoint = new IlPoint(minX, minZ);
-		MaxPoint = new IlPoint(maxX, maxZ);
-	}
+	public IlRect(int minX, int minZ, int maxX, int maxZ) : this(new IlPoint(minX, minZ), new IlPoint(maxX, maxZ)){}
 
 	public bool PointInside(IlPoint point)
 	{
@@ -42,4 +40,27 @@ public class IlRect
 	public int Width => MaxPoint.X - MinPoint.X;
 
 	public override string ToString() => $"[{MinPoint}, {MaxPoint}]";
+
+	public (IlRect one, IlRect two) Split(Jigsaw divider)
+	{
+		IlRect rectOne;
+		IlRect rectTwo;
+		switch (divider.TileType)
+		{
+			case JigsawTileType.West:
+				rectOne = new IlRect(divider.Location.X, MinPoint.Z, MaxPoint.X, MaxPoint.Z);
+				rectTwo = new IlRect(MinPoint.X, MinPoint.Z, divider.Location.X - 1, MaxPoint.Z);
+				break;
+			// case JigsawTileType.North:
+			// 	break;
+			// case JigsawTileType.East:
+			// 	break;
+			// case JigsawTileType.South:
+			// 	break;
+			default:
+				throw new ArgumentOutOfRangeException($"{divider.TileType} not supported in {nameof(IlRect)}.{nameof(Split)}");
+		}
+
+		return (rectOne, rectTwo);
+	}
 }

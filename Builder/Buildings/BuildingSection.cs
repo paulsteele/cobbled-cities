@@ -4,7 +4,11 @@ using Minecraft.City.Datapack.Generator.Models.IlNodes;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
 
-public class BuildingSection(NbtCompound rootTag) : AbstractSection(rootTag)
+public class BuildingSection(
+	NbtCompound rootTag,
+	IlRect? boundingBox = null,
+	Dictionary<IlPoint, Jigsaw.Jigsaw>? rootJigsaws = null
+) : AbstractSection(rootTag, boundingBox, rootJigsaws)
 {
 	public string SaveNbt(string fileName)
 	{
@@ -38,7 +42,7 @@ public class BuildingSection(NbtCompound rootTag) : AbstractSection(rootTag)
 		return new BuildingSection(RootTag);
 	}
 
-	public BuildingSection SplitLong(string extensionPoolName)
+	public (BuildingSection original, BuildingSection extension) SplitLong(string extensionPoolName)
 	{
 		if (Jigsaws.Count != 1)
 		{
@@ -110,15 +114,27 @@ public class BuildingSection(NbtCompound rootTag) : AbstractSection(rootTag)
 
 		var newJigsaw = new Jigsaw.Jigsaw(originalJigsawBlock, RootTag, new IlPoint(jigsawPosition.x, jigsawPosition.z));
 		var newExtensionJigsaw = new Jigsaw.Jigsaw(originalExtensionJigsawBlock, RootTag, new IlPoint(extensionJigsawPosition.x, extensionJigsawPosition.z));
-		
-		newJigsaw.SetJigsawPool(extensionPoolName);
-		newJigsaw.SetJigsawTarget(extensionPoolName);
-		
-		newExtensionJigsaw.SetJigsawName(extensionPoolName);
+
+		var poolName = $"cobbled-cities:{extensionPoolName}";
+
+		newJigsaw.SetJigsawPool(poolName);
+		newJigsaw.SetJigsawTarget(poolName);
+
+		newExtensionJigsaw.SetJigsawName(poolName);
 
 		Jigsaws.Add(newJigsaw.Location, newJigsaw);
 		Jigsaws.Add(newExtensionJigsaw.Location, newExtensionJigsaw);
-		
-		return null;
+
+		var fullRect = new IlRect(0, 0, MaxX - 1, MaxZ - 1);
+
+		var (originalRect, extensionRect) = fullRect.Split(newJigsaw);
+
+		extensionRect.MaxPoint.X += oneEighty.GetOffsetForTileType().x;
+		extensionRect.MaxPoint.Z += oneEighty.GetOffsetForTileType().z;
+
+		var original = new BuildingSection(RootTag, originalRect, Jigsaws);
+		var extension = new BuildingSection(RootTag, extensionRect, Jigsaws);
+
+		return (original, extension);
 	}
 }

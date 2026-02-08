@@ -11,9 +11,13 @@ public abstract class AbstractSection
 	public readonly NbtCompound RootTag;
 	protected readonly bool[,] TileMap;
 
-	protected AbstractSection(NbtCompound rootTag)
+	protected AbstractSection(
+		NbtCompound rootTag,
+		IlRect? boundingBox = null,
+		Dictionary<IlPoint, Jigsaw.Jigsaw>? rootJigsaws = null
+	)
 	{
-		RootTag = (NbtCompound)rootTag.Clone();
+		RootTag = (NbtCompound)BoundCompoundToBoundingBox(rootTag, boundingBox).Clone();
 		var blocks = RootTag.Get<NbtList>("blocks");
 
 		if (blocks == null)
@@ -25,6 +29,29 @@ public abstract class AbstractSection
 		ConvertBuildingBlocksToJigsaws(RootTag, blocks);
 		TileMap = InitBlocks(blocks);
 		InitJigsaws();
+
+		if (rootJigsaws == null)
+		{
+			return;
+		}
+		foreach (var jigsawsValue in Jigsaws.Values)
+		{
+			if (boundingBox != null)
+			{
+				jigsawsValue.OriginalLocation = new IlPoint(
+					jigsawsValue.Location.X + boundingBox.MinPoint.X,
+					jigsawsValue.Location.Z + boundingBox.MinPoint.Z
+				);
+			}
+	
+			if (!rootJigsaws.TryGetValue(jigsawsValue.OriginalLocation, out var rootJigsaw))
+			{
+				continue;
+			}
+			jigsawsValue.PointingToLocation = rootJigsaw.PointingToLocation;
+			jigsawsValue.PointsToOutside = rootJigsaw.PointsToOutside;
+			jigsawsValue.PointsFromOutside = rootJigsaw.PointsFromOutside;
+		}
 	}
 
 	protected int MaxX => RootTag.GetNbtDimensions().x;
@@ -341,4 +368,42 @@ public abstract class AbstractSection
 		}
 	}
 
+	private static NbtCompound BoundCompoundToBoundingBox(NbtCompound rootTag, IlRect? boundingBox)
+	{
+		if (boundingBox == null)
+		{
+			return rootTag;
+		}
+	
+		var newRootTag = (NbtCompound)rootTag.Clone();
+		var (_, maxY, _) = newRootTag.GetNbtDimensions();
+		var blocks = newRootTag.Get<NbtList>("blocks");
+		
+		if (blocks == null)
+		{
+			throw new ArgumentException($"{nameof(rootTag)} does not have any blocks");
+		}
+		
+		newRootTag.SetNbtDimensions(boundingBox.Width + 1, maxY, boundingBox.Height + 1);
+
+		var tempBlocks = blocks
+			.OfType<NbtCompound>()
+			.Where(b =>
+			{
+				var pos = b.GetNbtPosition();
+				return boundingBox.PointInside(pos.x, pos.z);
+			}).ToList();
+
+		foreach (var block in tempBlocks)
+		{
+			var pos = block.GetNbtPosition();
+			block.SetNbtPosition(pos.x - boundingBox.MinPoint.X, pos.y, pos.z - boundingBox.MinPoint.Z);
+		}
+
+		var newList = new NbtList("blocks");
+		newList.AddRange(tempBlocks);
+
+		newRootTag["blocks"] = newList;
+		return newRootTag;
+	}
 }

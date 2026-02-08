@@ -108,7 +108,7 @@ public class DynamicBuilding
 			{
 				var extensionName = $"{fileName}-extension";
 
-				var extension = building.SplitLong(extensionName);
+				(building, var extension) = building.SplitLong(extensionName);
 
 				extension.FillEmptySpace();
 				extension.DebugPrint();
