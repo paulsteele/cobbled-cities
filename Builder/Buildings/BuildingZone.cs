@@ -5,15 +5,21 @@ namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
 public record BuildingZone
 {
 	private string Name { get; }
+	public string FolderName { get; }
 	public int MinHeight { get; }
 	public int MaxHeight { get; }
 	public int MaxDistanceFromCenter { get; }
 
-	public BuildingZone(string name, int minHeight, int maxHeight, int maxDistanceFromCenter)
+	public BuildingZone(string name, string folderName, int minHeight, int maxHeight, int maxDistanceFromCenter)
 	{
 		if (string.IsNullOrWhiteSpace(name))
 		{
 			throw new ArgumentException("Zone name cannot be null or empty", nameof(name));
+		}
+
+		if (string.IsNullOrWhiteSpace(folderName))
+		{
+			throw new ArgumentException("Folder name cannot be null or empty", nameof(folderName));
 		}
 
 		if (minHeight <= 0)
@@ -32,6 +38,7 @@ public record BuildingZone
 		}
 
 		Name = name;
+		FolderName = folderName;
 		MinHeight = minHeight;
 		MaxHeight = maxHeight;
 		MaxDistanceFromCenter = maxDistanceFromCenter;

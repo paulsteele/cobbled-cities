@@ -3,14 +3,17 @@ namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
 public interface IBuildingZoneService
 {
 	IReadOnlyList<BuildingZone> Zones { get; }
+	string UniversalFolderName { get; }
 	BuildingZone GetZoneByDistance(double distance);
 }
 
 public class BuildingZoneService : IBuildingZoneService
 {
-	private readonly BuildingZone _centralZone = new("buildings-central", 6, 10, 4 * 16);
-	private readonly BuildingZone _urbanZone = new("buildings-urban", 4, 6, 9 * 16);
-	private readonly BuildingZone _residentialZone = new("buildings-residential", 3, 4, int.MaxValue);
+	private readonly BuildingZone _centralZone = new("buildings-central", "urban", 6, 10, 4 * 16);
+	private readonly BuildingZone _urbanZone = new("buildings-urban", "suburban", 4, 6, 9 * 16);
+	private readonly BuildingZone _residentialZone = new("buildings-residential", "residential", 3, 4, int.MaxValue);
+
+	public string UniversalFolderName => "universal";
 
 	public IReadOnlyList<BuildingZone> Zones => [_centralZone, _urbanZone, _residentialZone];
 

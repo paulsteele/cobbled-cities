@@ -5,6 +5,7 @@ namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
 public record BuildingInfo
 {
 	public required string Name { get; init; }
+	public required string Source { get; init; }
 	public required int Height { get; init; }
 	public required JigsawTileType JigsawTileType { get; init; }
 }

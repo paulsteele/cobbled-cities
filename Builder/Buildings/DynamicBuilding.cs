@@ -12,6 +12,9 @@ public class DynamicBuilding
 	private readonly BuildingSection[] _tops;
 	private readonly JigsawTileType _jigsawJigsawTileType;
 
+	private const int MaxVariationsPerHeight = 100;
+	private static readonly Random Rng = new();
+
 	private DynamicBuilding(string name, JigsawTileType jigsawTileType, BuildingSection[] bottoms, BuildingSection[] mids, BuildingSection[] tops)
 	{
 		_name = name;
@@ -21,15 +24,22 @@ public class DynamicBuilding
 		_jigsawJigsawTileType = jigsawTileType;
 	}
 
-	private const string DynamicInputPath = "../../../nbts/buildings/dynamic";
 	private const string DynamicBuildingBottomName = "bottom";
 	private const string DynamicBuildingMidName = "mid";
 	private const string DynamicBuildingTopName = "top";
 
-	public static IEnumerable<DynamicBuilding> GetAllDynamicBuildings()
+	public static IEnumerable<DynamicBuilding> GetAllDynamicBuildings(string zoneFolderPath)
 	{
+		var dynamicPath = Path.Combine(zoneFolderPath, "dynamic");
+		var dynamicDir = new DirectoryInfo(dynamicPath);
+
+		if (!dynamicDir.Exists)
+		{
+			return [];
+		}
+
 		var subDirectories = JigsawTileTypeExtensions.BuildingTypes
-			.Select(tileType => (directory: new DirectoryInfo($"{DynamicInputPath}/{tileType.GetBuildingTypeFolderName()}"), tileType))
+			.Select(tileType => (directory: new DirectoryInfo(Path.Combine(dynamicPath, tileType.GetBuildingTypeFolderName())), tileType))
 			.ToLookup(d => d.directory.Exists);
 
 		foreach (var missingDirectoryInfo in subDirectories[false])
@@ -80,13 +90,13 @@ public class DynamicBuilding
 
 	public IEnumerable<BuildingInfo> ConstructDynamicBuilding(int minHeight, int maxHeight)
 	{
-		List<BuildingInfo> buildings = [];
-		for(var height = minHeight; height <= maxHeight; height++)
+		for (var height = minHeight; height <= maxHeight; height++)
 		{
-			buildings.AddRange(ConstructDynamicBuilding(height));
+			foreach (var building in ConstructDynamicBuilding(height))
+			{
+				yield return building;
+			}
 		}
-
-		return buildings;
 	}
 
 	private IEnumerable<BuildingInfo> ConstructDynamicBuilding(int height)
@@ -117,6 +127,7 @@ public class DynamicBuilding
 				yield return new BuildingInfo
 				{
 					Name = extensionName,
+					Source = _name,
 					Height = height,
 					JigsawTileType = JigsawTileType.BuildingLongExtension
 				};
@@ -129,6 +140,7 @@ public class DynamicBuilding
 			yield return new BuildingInfo
 			{
 				Name = fileName,
+				Source = _name,
 				Height = height,
 				JigsawTileType = _jigsawJigsawTileType
 			};
@@ -137,32 +149,51 @@ public class DynamicBuilding
 	
 	private IEnumerable<List<BuildingSection>> GetBuildingSets(int height)
 	{
-		var bottomAndTops = GetBottomAndTops();
+		var bottomAndTops = GetBottomAndTops().ToArray();
 		var midHeight = height - 2;
 
 		var midVariations = new Variations<BuildingSection>(_mids, midHeight + 1, GenerateOption.WithRepetition)
-			.Select(bs => bs)
+			.Select(bs => bs.ToArray())
 			.ToArray();
-		
+
+		var allSets = new (BuildingSection bottom, BuildingSection top, BuildingSection[] mid)[bottomAndTops.Length * midVariations.Length];
+		var index = 0;
 		foreach (var (bottom, top) in bottomAndTops)
 		{
-			var sections = new List<BuildingSection>();
 			foreach (var mid in midVariations)
 			{
-				sections.Add(bottom.Clone());
-				sections.AddRange(mid.Select(m => m.Clone()));
-				sections.Add(top.Clone());
-				yield return sections;
+				allSets[index++] = (bottom, top, mid);
 			}
+		}
+
+		FisherYatesShuffle(allSets);
+		var count = Math.Min(MaxVariationsPerHeight, allSets.Length);
+
+		for (var i = 0; i < count; i++)
+		{
+			var (bottom, top, mid) = allSets[i];
+			var sections = new List<BuildingSection> { bottom.Clone() };
+			sections.AddRange(mid.Select(m => m.Clone()));
+			sections.Add(top.Clone());
+			yield return sections;
 		}
 	}
 
 	private IEnumerable<(BuildingSection bottom, BuildingSection top)> GetBottomAndTops()
 	{
-		return 
-			from bottom in _bottoms 
-			from top in _tops 
+		return
+			from bottom in _bottoms
+			from top in _tops
 			select (bottom, top);
+	}
+
+	private static void FisherYatesShuffle<T>(T[] array)
+	{
+		for (var i = array.Length - 1; i > 0; i--)
+		{
+			var j = Rng.Next(i + 1);
+			(array[i], array[j]) = (array[j], array[i]);
+		}
 	}
 	
 	private BuildingSection AddNbtToTop(BuildingSection section1, BuildingSection section2)
