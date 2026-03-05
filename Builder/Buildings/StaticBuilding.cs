@@ -47,9 +47,9 @@ public static class StaticBuilding
 		if (tileType == JigsawTileType.BuildingLong)
 		{
 			var extensionName = $"{fileName}-extension";
-			(section, var extension) = section.SplitLong(extensionName);
+			(section, var extension, _) = section.SplitLong(extensionName);
 
-			extension.FillEmptySpace();
+			extension.FillEmptySpace(extendHeight: true);
 			extension.DebugPrint();
 			extension.SaveNbt(extensionName);
 
@@ -62,7 +62,7 @@ public static class StaticBuilding
 			};
 		}
 
-		section.FillEmptySpace();
+		section.FillEmptySpace(extendHeight: true);
 		section.DebugPrint();
 		section.SaveNbt(fileName);
 

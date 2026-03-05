@@ -11,7 +11,9 @@ public enum JigsawTileType
 	BuildingNormal,
 	BuildingCorner,
 	BuildingLong,
-	BuildingLongExtension
+	BuildingLongExtension,
+	Up,
+	Down
 }
 
 public static class JigsawTileTypeExtensions
@@ -26,6 +28,8 @@ public static class JigsawTileTypeExtensions
 			"south_up" => JigsawTileType.South,
 			"west_up" => JigsawTileType.West,
 			"east_up" => JigsawTileType.East,
+			"up_north" => JigsawTileType.Up,
+			"down_north" => JigsawTileType.Down,
 			_ => GetJigsawBuildingType(compound, rootTag),
 		};
 	}
@@ -73,6 +77,12 @@ public static class JigsawTileTypeExtensions
 					break;
 				case "west_up":
 					dictionary.TryAdd(JigsawTileType.West, index);
+					break;
+				case "up_north":
+					dictionary.TryAdd(JigsawTileType.Up, index);
+					break;
+				case "down_north":
+					dictionary.TryAdd(JigsawTileType.Down, index);
 					break;
 			}
 		}
@@ -124,6 +134,8 @@ public static class JigsawTileTypeExtensions
 			JigsawTileType.East => "east_up",
 			JigsawTileType.South => "south_up",
 			JigsawTileType.West => "west_up",
+			JigsawTileType.Up => "up_north",
+			JigsawTileType.Down => "down_north",
 			_ => throw new ArgumentOutOfRangeException($"{nameof(tileType)}: {tileType} not supported value")
 		};
 	}

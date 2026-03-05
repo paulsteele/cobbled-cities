@@ -113,7 +113,7 @@ public class RoadAssembler(JsonWriter writer, IBuildingZoneService buildingZoneS
 		foreach (var subSection in subSections)
 		{
 			subSection.UpdateJigsaws(fileName, subSectionDictionary, zone, buildingZoneService);
-			subSection.FillEmptySpace();
+			subSection.FillEmptySpace(extendHeight: true);
 			subSection.SaveNbt(fileName, zone.Name);
 			
 			subSection.DebugPrint();

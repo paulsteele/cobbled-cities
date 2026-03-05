@@ -70,7 +70,9 @@ public abstract class AbstractSection
 			JigsawTileType.North,
 			JigsawTileType.East,
 			JigsawTileType.South,
-			JigsawTileType.West
+			JigsawTileType.West,
+			JigsawTileType.Up,
+			JigsawTileType.Down
 		};
 
 		foreach (var type in neededTypes)
@@ -200,6 +202,8 @@ public abstract class AbstractSection
 						JigsawTileType.East => '>',
 						JigsawTileType.South => 'v',
 						JigsawTileType.West => '<',
+						JigsawTileType.Up => 'U',
+						JigsawTileType.Down => 'D',
 						_ => throw new ArgumentException($"{nameof(JigsawTileType)}: {jigsaw.TileType} unknown")
 					};
 					Console.Write(display);
@@ -245,7 +249,7 @@ public abstract class AbstractSection
 		return value.Length > length ? value[..length] : value.PadRight(length);
 	}
 	
-	public void FillEmptySpace()
+	public void FillEmptySpace(bool extendHeight)
 	{
 		var palette = RootTag.GetPalette();
 
@@ -254,7 +258,7 @@ public abstract class AbstractSection
 		{
 			new NbtString("Name", "minecraft:cave_air")
 		}));
-		
+
 		var blocks = RootTag.Get<NbtList>("blocks");
 
 		if (blocks == null)
@@ -263,8 +267,11 @@ public abstract class AbstractSection
 		}
 
 		blocks = (NbtList) blocks.Clone();
-		
-		RootTag.SetNbtDimensions(MaxX, MaxY + EmptySpaceExtraHeight, MaxZ);
+
+		if (extendHeight)
+		{
+			RootTag.SetNbtDimensions(MaxX, MaxY + EmptySpaceExtraHeight, MaxZ);
+		}
 		
 		var blockMatrix = new NbtCompound?[MaxX, MaxZ, MaxY];
 		

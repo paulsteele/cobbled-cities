@@ -1,4 +1,3 @@
-using Combinatorics.Collections;
 using fNbt;
 using Minecraft.City.Datapack.Generator.Builder.Jigsaw;
 
@@ -10,10 +9,7 @@ public class DynamicBuilding
 	private readonly BuildingSection[] _bottoms;
 	private readonly BuildingSection[] _mids;
 	private readonly BuildingSection[] _tops;
-	private readonly JigsawTileType _jigsawJigsawTileType;
-
-	private const int MaxVariationsPerHeight = 100;
-	private static readonly Random Rng = new();
+	private readonly JigsawTileType _jigsawTileType;
 
 	private DynamicBuilding(string name, JigsawTileType jigsawTileType, BuildingSection[] bottoms, BuildingSection[] mids, BuildingSection[] tops)
 	{
@@ -21,7 +17,7 @@ public class DynamicBuilding
 		_bottoms = bottoms;
 		_mids = mids;
 		_tops = tops;
-		_jigsawJigsawTileType = jigsawTileType;
+		_jigsawTileType = jigsawTileType;
 	}
 
 	private const string DynamicBuildingBottomName = "bottom";
@@ -53,13 +49,13 @@ public class DynamicBuilding
 			.OfType<DynamicBuilding>()
 			.ToArray();
 	}
-	
+
 	private static DynamicBuilding? GetDynamicBuilding(DirectoryInfo baseDirectory, JigsawTileType tileType)
 	{
 		var bottomDirectory = new DirectoryInfo(Path.Combine(baseDirectory.FullName, DynamicBuildingBottomName));
 		var midDirectory = new DirectoryInfo(Path.Combine(baseDirectory.FullName, DynamicBuildingMidName));
 		var topDirectory = new DirectoryInfo(Path.Combine(baseDirectory.FullName, DynamicBuildingTopName));
-		
+
 		if (!bottomDirectory.Exists || !midDirectory.Exists || !topDirectory.Exists)
 		{
 			return null;
@@ -70,12 +66,12 @@ public class DynamicBuilding
 		var bottomFiles = bottomDirectory.GetFiles(searchPattern);
 		var midFiles = midDirectory.GetFiles(searchPattern);
 		var topFiles = topDirectory.GetFiles(searchPattern);
-		
+
 		if (bottomFiles.Length == 0 || midFiles.Length == 0 || topFiles.Length == 0)
 		{
 			return null;
 		}
-		
+
 		return new DynamicBuilding(
 			baseDirectory.Name,
 			tileType,
@@ -88,177 +84,176 @@ public class DynamicBuilding
 	private static BuildingSection[] GetBuildingSections(FileInfo[] files) =>
 		files.Select(f => new BuildingSection(new NbtFile(f.FullName).RootTag)).ToArray();
 
-	public IEnumerable<BuildingInfo> ConstructDynamicBuilding(int minHeight, int maxHeight)
+	public IEnumerable<FloorSectionInfo> ConstructFloorSections(int minHeight, int maxHeight)
 	{
-		for (var height = minHeight; height <= maxHeight; height++)
+		var maxStep = maxHeight - 2;
+		var isLong = _jigsawTileType == JigsawTileType.BuildingLong;
+
+		// Determine split info from the first bottom section (all sections share the same footprint)
+		LongSplitInfo? splitInfo = null;
+		if (isLong)
 		{
-			foreach (var building in ConstructDynamicBuilding(height))
+			var probe = _bottoms[0].Clone();
+			probe.RotateBuildingJigsaws(true);
+			probe.UpdateJigsaws();
+			(_, _, splitInfo) = probe.SplitLong($"{_name}-probe");
+		}
+
+		// Generate bottom sections — one per variant per height
+		for (var b = 0; b < _bottoms.Length; b++)
+		{
+			for (var height = minHeight; height <= maxHeight; height++)
 			{
-				yield return building;
+				var step = height - 2;
+				var bottom = _bottoms[b].Clone();
+				bottom.RotateBuildingJigsaws(true);
+				bottom.UpdateJigsaws();
+
+				var fileName = $"{_name}-bottom-{b}-h{height}";
+
+				if (isLong)
+				{
+					var extensionName = $"{fileName}-extension";
+					(bottom, var extension, _) = bottom.SplitLong(extensionName);
+
+					bottom.AddVerticalJigsaws(_name, FloorType.Bottom, step);
+
+					extension.FillEmptySpace(extendHeight: false);
+					extension.DebugPrint();
+					extension.SaveNbt(extensionName);
+
+					yield return new FloorSectionInfo
+					{
+						Name = extensionName,
+						Source = _name,
+						FloorType = FloorType.Bottom,
+						Height = height,
+						ChainStep = null,
+						JigsawTileType = JigsawTileType.BuildingLongExtension,
+						IsExtension = true
+					};
+				}
+				else
+				{
+					bottom.AddVerticalJigsaws(_name, FloorType.Bottom, step);
+				}
+
+				bottom.FillEmptySpace(extendHeight: false);
+				bottom.DebugPrint();
+				bottom.SaveNbt(fileName);
+
+				yield return new FloorSectionInfo
+				{
+					Name = fileName,
+					Source = _name,
+					FloorType = FloorType.Bottom,
+					Height = height,
+					ChainStep = null,
+					JigsawTileType = _jigsawTileType,
+					IsExtension = false
+				};
 			}
 		}
-	}
 
-	private IEnumerable<BuildingInfo> ConstructDynamicBuilding(int height)
-	{
-		var sets = GetBuildingSets(height);
-
-		var counter = 0;
-		foreach (var set in sets)
+		// Generate mid sections — one per variant per chain step
+		for (var m = 0; m < _mids.Length; m++)
 		{
-			counter++;
-			var building = set.Aggregate(AddNbtToTop);
+			for (var step = 1; step <= maxStep; step++)
+			{
+				var mid = _mids[m].Clone();
+				var fileName = $"{_name}-mid-{m}-step-{step}";
 
-			building.RotateBuildingJigsaws(true);
-			building.UpdateJigsaws();
+				if (isLong && splitInfo != null)
+				{
+					var extensionName = $"{fileName}-extension";
+					(mid, var extension) = mid.SplitLongFloor(splitInfo, extensionName);
 
-			var fileName = $"{_name}-h{height}-{counter}";
+					mid.AddVerticalJigsaws(_name, FloorType.Mid, step);
 
-			if (_jigsawJigsawTileType == JigsawTileType.BuildingLong)
+					extension.FillEmptySpace(extendHeight: false);
+					extension.DebugPrint();
+					extension.SaveNbt(extensionName);
+
+					yield return new FloorSectionInfo
+					{
+						Name = extensionName,
+						Source = _name,
+						FloorType = FloorType.Mid,
+						Height = null,
+						ChainStep = step,
+						JigsawTileType = JigsawTileType.BuildingLongExtension,
+						IsExtension = true
+					};
+				}
+				else
+				{
+					mid.AddVerticalJigsaws(_name, FloorType.Mid, step);
+				}
+
+				mid.FillEmptySpace(extendHeight: false);
+				mid.DebugPrint();
+				mid.SaveNbt(fileName);
+
+				yield return new FloorSectionInfo
+				{
+					Name = fileName,
+					Source = _name,
+					FloorType = FloorType.Mid,
+					Height = null,
+					ChainStep = step,
+					JigsawTileType = _jigsawTileType,
+					IsExtension = false
+				};
+			}
+		}
+
+		// Generate top sections — one per variant (shared across all heights)
+		for (var t = 0; t < _tops.Length; t++)
+		{
+			var top = _tops[t].Clone();
+			var fileName = $"{_name}-top-{t}";
+
+			if (isLong && splitInfo != null)
 			{
 				var extensionName = $"{fileName}-extension";
+				(top, var extension) = top.SplitLongFloor(splitInfo, extensionName);
 
-				(building, var extension) = building.SplitLong(extensionName);
+				top.AddVerticalJigsaws(_name, FloorType.Top, null);
 
-				extension.FillEmptySpace();
+				extension.FillEmptySpace(extendHeight: true);
 				extension.DebugPrint();
 				extension.SaveNbt(extensionName);
 
-				yield return new BuildingInfo
+				yield return new FloorSectionInfo
 				{
 					Name = extensionName,
 					Source = _name,
-					Height = height,
-					JigsawTileType = JigsawTileType.BuildingLongExtension
+					FloorType = FloorType.Top,
+					Height = null,
+					ChainStep = null,
+					JigsawTileType = JigsawTileType.BuildingLongExtension,
+					IsExtension = true
 				};
 			}
+			else
+			{
+				top.AddVerticalJigsaws(_name, FloorType.Top, null);
+			}
 
-			building.FillEmptySpace();
-			building.DebugPrint();
-			building.SaveNbt(fileName);
+			top.FillEmptySpace(extendHeight: true);
+			top.DebugPrint();
+			top.SaveNbt(fileName);
 
-			yield return new BuildingInfo
+			yield return new FloorSectionInfo
 			{
 				Name = fileName,
 				Source = _name,
-				Height = height,
-				JigsawTileType = _jigsawJigsawTileType
+				FloorType = FloorType.Top,
+				Height = null,
+				ChainStep = null,
+				JigsawTileType = _jigsawTileType,
+				IsExtension = false
 			};
 		}
-	}
-	
-	private IEnumerable<List<BuildingSection>> GetBuildingSets(int height)
-	{
-		var bottomAndTops = GetBottomAndTops().ToArray();
-		var midHeight = height - 2;
-
-		var midVariations = new Variations<BuildingSection>(_mids, midHeight + 1, GenerateOption.WithRepetition)
-			.Select(bs => bs.ToArray())
-			.ToArray();
-
-		var allSets = new (BuildingSection bottom, BuildingSection top, BuildingSection[] mid)[bottomAndTops.Length * midVariations.Length];
-		var index = 0;
-		foreach (var (bottom, top) in bottomAndTops)
-		{
-			foreach (var mid in midVariations)
-			{
-				allSets[index++] = (bottom, top, mid);
-			}
-		}
-
-		FisherYatesShuffle(allSets);
-		var count = Math.Min(MaxVariationsPerHeight, allSets.Length);
-
-		for (var i = 0; i < count; i++)
-		{
-			var (bottom, top, mid) = allSets[i];
-			var sections = new List<BuildingSection> { bottom.Clone() };
-			sections.AddRange(mid.Select(m => m.Clone()));
-			sections.Add(top.Clone());
-			yield return sections;
-		}
-	}
-
-	private IEnumerable<(BuildingSection bottom, BuildingSection top)> GetBottomAndTops()
-	{
-		return
-			from bottom in _bottoms
-			from top in _tops
-			select (bottom, top);
-	}
-
-	private static void FisherYatesShuffle<T>(T[] array)
-	{
-		for (var i = array.Length - 1; i > 0; i--)
-		{
-			var j = Rng.Next(i + 1);
-			(array[i], array[j]) = (array[j], array[i]);
-		}
-	}
-	
-	private BuildingSection AddNbtToTop(BuildingSection section1, BuildingSection section2)
-	{
-		var (startX, startY, startZ) = section1.RootTag.GetNbtDimensions();
-		var (newX, newY, newZ) = section2.RootTag.GetNbtDimensions();
-
-		if (startX != newX || startZ != newZ)
-		{
-			Console.Error.WriteLine("Sizes do not match up adding NbtToTop");
-			return section1;
-		}
-		
-		section1.RootTag.SetNbtDimensions(startX, startY + newY, startZ);
-
-		if (section1.RootTag.Get<NbtList>("palette") is not { } section1Pallete)
-		{
-			Console.Error.WriteLine("Section1 does not have a palette");
-			return section1;
-		}
-		
-		if (section2.RootTag.Get<NbtList>("palette")?.Clone() is not NbtList section2Pallete)
-		{
-			Console.Error.WriteLine("Section2 does not have a palette");
-			return section1;
-		}
-
-		var startPaletteCountCount = section1Pallete.Count;
-		
-		section1Pallete.AddRange(section2Pallete);
-		
-		if (section1.RootTag.Get<NbtList>("blocks") is not { } section1Blocks)
-		{
-			Console.Error.WriteLine("Section1 does not have blocks");
-			return section1;
-		}
-		
-		if (section2.RootTag.Get<NbtList>("blocks")?.Clone() is not NbtList section2Blocks)
-		{
-			Console.Error.WriteLine("Section2 does not have blocks");
-			return section1;
-		}
-
-		foreach (var section2Block in section2Blocks)
-		{
-			if (section2Block is not NbtCompound block)
-			{
-				Console.Error.WriteLine("Section2 block is not a compound");
-				continue;
-			}
-			
-			if (block.Get<NbtInt>("state") is not { } state)
-			{
-				Console.Error.WriteLine("Section2 block does not have a state");
-				continue;
-			}
-
-			state.Value = state.IntValue + startPaletteCountCount;
-
-			var (x, y, z) = block.GetNbtPosition();
-			block.SetNbtPosition(x, y + startY, z);
-		}
-
-		section1Blocks.AddRange(section2Blocks);
-		
-		return section1;
 	}
 }
