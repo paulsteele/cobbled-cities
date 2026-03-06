@@ -1,0 +1,20 @@
+{
+  "palettes": [
+    {
+      "a": "stone_bricks",
+      "b": [
+        {
+          "block": "oak_planks"
+        }
+      ]
+    },
+    {
+      "a": "bricks",
+      "b": [
+        {
+          "block": "spruce_planks"
+        }
+      ]
+    }
+  ]
+}

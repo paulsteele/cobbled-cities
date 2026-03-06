@@ -1,4 +1,5 @@
 using fNbt;
+using Minecraft.City.Datapack.Generator.Builder.Buildings.Palette;
 using Minecraft.City.Datapack.Generator.Builder.Jigsaw;
 
 namespace Minecraft.City.Datapack.Generator.Builder.Buildings;
@@ -10,14 +11,16 @@ public class DynamicBuilding
 	private readonly BuildingSection[] _mids;
 	private readonly BuildingSection[] _tops;
 	private readonly JigsawTileType _jigsawTileType;
+	private readonly PaletteConfig? _paletteConfig;
 
-	private DynamicBuilding(string name, JigsawTileType jigsawTileType, BuildingSection[] bottoms, BuildingSection[] mids, BuildingSection[] tops)
+	private DynamicBuilding(string name, JigsawTileType jigsawTileType, BuildingSection[] bottoms, BuildingSection[] mids, BuildingSection[] tops, PaletteConfig? paletteConfig)
 	{
 		_name = name;
 		_bottoms = bottoms;
 		_mids = mids;
 		_tops = tops;
 		_jigsawTileType = jigsawTileType;
+		_paletteConfig = paletteConfig;
 	}
 
 	private const string DynamicBuildingBottomName = "bottom";
@@ -72,22 +75,48 @@ public class DynamicBuilding
 			return null;
 		}
 
+		var paletteConfig = PaletteConfig.LoadFromDirectory(baseDirectory.FullName);
+
 		return new DynamicBuilding(
 			baseDirectory.Name,
 			tileType,
 			GetBuildingSections(bottomFiles),
 			GetBuildingSections(midFiles),
-			GetBuildingSections(topFiles)
+			GetBuildingSections(topFiles),
+			paletteConfig
 		);
 	}
 
 	private static BuildingSection[] GetBuildingSections(FileInfo[] files) =>
 		files.Select(f => new BuildingSection(new NbtFile(f.FullName).RootTag)).ToArray();
 
+	private IReadOnlyList<PaletteCombination?> GetCombinations() =>
+		_paletteConfig?.GetAllCombinations().Cast<PaletteCombination?>().ToList()
+		?? [null];
+
+	private string GetSource(PaletteCombination? combination) =>
+		combination != null ? $"{_name}-{combination.Suffix}" : _name;
+
+	private string GetFileName(string baseFileName, PaletteCombination? combination) =>
+		combination != null ? $"{baseFileName}-{combination.Suffix}" : baseFileName;
+
+	private static void ApplyPaletteAndSave(BuildingSection section, string fileName, PaletteCombination? combination, bool extendHeight)
+	{
+		if (combination != null)
+		{
+			PaletteReplacer.Apply(section.RootTag, combination);
+		}
+
+		section.FillEmptySpace(extendHeight: extendHeight);
+		section.DebugPrint();
+		section.SaveNbt(fileName);
+	}
+
 	public IEnumerable<FloorSectionInfo> ConstructFloorSections(int minHeight, int maxHeight)
 	{
 		var maxStep = maxHeight - 2;
 		var isLong = _jigsawTileType == JigsawTileType.BuildingLong;
+		var combinations = GetCombinations();
 
 		// Determine split info from the first bottom section (all sections share the same footprint)
 		LongSplitInfo? splitInfo = null;
@@ -99,35 +128,143 @@ public class DynamicBuilding
 			(_, _, splitInfo) = probe.SplitLong($"{_name}-probe");
 		}
 
-		// Generate bottom sections — one per variant per height
+		// Generate bottom sections — one per variant per height per palette combination
 		for (var b = 0; b < _bottoms.Length; b++)
 		{
 			for (var height = minHeight; height <= maxHeight; height++)
 			{
 				var step = height - 2;
-				var bottom = _bottoms[b].Clone();
-				bottom.RotateBuildingJigsaws(true);
-				bottom.UpdateJigsaws();
+				var baseFileName = $"{_name}-bottom-{b}-h{height}";
 
-				var fileName = $"{_name}-bottom-{b}-h{height}";
+				foreach (var combination in combinations)
+				{
+					var source = GetSource(combination);
+					var fileName = GetFileName(baseFileName, combination);
+					var bottom = _bottoms[b].Clone();
+					bottom.RotateBuildingJigsaws(true);
+					bottom.UpdateJigsaws();
 
-				if (isLong)
+					if (isLong)
+					{
+						var extensionName = $"{fileName}-extension";
+						(bottom, var extension, _) = bottom.SplitLong(extensionName);
+
+						bottom.AddVerticalJigsaws(source, FloorType.Bottom, step);
+
+						ApplyPaletteAndSave(extension, extensionName, combination, extendHeight: false);
+
+						yield return new FloorSectionInfo
+						{
+							Name = extensionName,
+							Source = source,
+							FloorType = FloorType.Bottom,
+							Height = height,
+							ChainStep = null,
+							JigsawTileType = JigsawTileType.BuildingLongExtension,
+							IsExtension = true
+						};
+					}
+					else
+					{
+						bottom.AddVerticalJigsaws(source, FloorType.Bottom, step);
+					}
+
+					ApplyPaletteAndSave(bottom, fileName, combination, extendHeight: false);
+
+					yield return new FloorSectionInfo
+					{
+						Name = fileName,
+						Source = source,
+						FloorType = FloorType.Bottom,
+						Height = height,
+						ChainStep = null,
+						JigsawTileType = _jigsawTileType,
+						IsExtension = false
+					};
+				}
+			}
+		}
+
+		// Generate mid sections — one per variant per chain step per palette combination
+		for (var m = 0; m < _mids.Length; m++)
+		{
+			for (var step = 1; step <= maxStep; step++)
+			{
+				var baseFileName = $"{_name}-mid-{m}-step-{step}";
+
+				foreach (var combination in combinations)
+				{
+					var source = GetSource(combination);
+					var fileName = GetFileName(baseFileName, combination);
+					var mid = _mids[m].Clone();
+
+					if (isLong && splitInfo != null)
+					{
+						var extensionName = $"{fileName}-extension";
+						(mid, var extension) = mid.SplitLongFloor(splitInfo, extensionName);
+
+						mid.AddVerticalJigsaws(source, FloorType.Mid, step);
+
+						ApplyPaletteAndSave(extension, extensionName, combination, extendHeight: false);
+
+						yield return new FloorSectionInfo
+						{
+							Name = extensionName,
+							Source = source,
+							FloorType = FloorType.Mid,
+							Height = null,
+							ChainStep = step,
+							JigsawTileType = JigsawTileType.BuildingLongExtension,
+							IsExtension = true
+						};
+					}
+					else
+					{
+						mid.AddVerticalJigsaws(source, FloorType.Mid, step);
+					}
+
+					ApplyPaletteAndSave(mid, fileName, combination, extendHeight: false);
+
+					yield return new FloorSectionInfo
+					{
+						Name = fileName,
+						Source = source,
+						FloorType = FloorType.Mid,
+						Height = null,
+						ChainStep = step,
+						JigsawTileType = _jigsawTileType,
+						IsExtension = false
+					};
+				}
+			}
+		}
+
+		// Generate top sections — one per variant per palette combination (shared across all heights)
+		for (var t = 0; t < _tops.Length; t++)
+		{
+			var baseFileName = $"{_name}-top-{t}";
+
+			foreach (var combination in combinations)
+			{
+				var source = GetSource(combination);
+				var fileName = GetFileName(baseFileName, combination);
+				var top = _tops[t].Clone();
+
+				if (isLong && splitInfo != null)
 				{
 					var extensionName = $"{fileName}-extension";
-					(bottom, var extension, _) = bottom.SplitLong(extensionName);
+					(top, var extension) = top.SplitLongFloor(splitInfo, extensionName);
 
-					bottom.AddVerticalJigsaws(_name, FloorType.Bottom, step);
+					top.AddVerticalJigsaws(source, FloorType.Top, null);
 
-					extension.FillEmptySpace(extendHeight: false);
-					extension.DebugPrint();
-					extension.SaveNbt(extensionName);
+					ApplyPaletteAndSave(extension, extensionName, combination, extendHeight: true);
 
 					yield return new FloorSectionInfo
 					{
 						Name = extensionName,
-						Source = _name,
-						FloorType = FloorType.Bottom,
-						Height = height,
+						Source = source,
+						FloorType = FloorType.Top,
+						Height = null,
 						ChainStep = null,
 						JigsawTileType = JigsawTileType.BuildingLongExtension,
 						IsExtension = true
@@ -135,125 +272,22 @@ public class DynamicBuilding
 				}
 				else
 				{
-					bottom.AddVerticalJigsaws(_name, FloorType.Bottom, step);
+					top.AddVerticalJigsaws(source, FloorType.Top, null);
 				}
 
-				bottom.FillEmptySpace(extendHeight: false);
-				bottom.DebugPrint();
-				bottom.SaveNbt(fileName);
+				ApplyPaletteAndSave(top, fileName, combination, extendHeight: true);
 
 				yield return new FloorSectionInfo
 				{
 					Name = fileName,
-					Source = _name,
-					FloorType = FloorType.Bottom,
-					Height = height,
-					ChainStep = null,
-					JigsawTileType = _jigsawTileType,
-					IsExtension = false
-				};
-			}
-		}
-
-		// Generate mid sections — one per variant per chain step
-		for (var m = 0; m < _mids.Length; m++)
-		{
-			for (var step = 1; step <= maxStep; step++)
-			{
-				var mid = _mids[m].Clone();
-				var fileName = $"{_name}-mid-{m}-step-{step}";
-
-				if (isLong && splitInfo != null)
-				{
-					var extensionName = $"{fileName}-extension";
-					(mid, var extension) = mid.SplitLongFloor(splitInfo, extensionName);
-
-					mid.AddVerticalJigsaws(_name, FloorType.Mid, step);
-
-					extension.FillEmptySpace(extendHeight: false);
-					extension.DebugPrint();
-					extension.SaveNbt(extensionName);
-
-					yield return new FloorSectionInfo
-					{
-						Name = extensionName,
-						Source = _name,
-						FloorType = FloorType.Mid,
-						Height = null,
-						ChainStep = step,
-						JigsawTileType = JigsawTileType.BuildingLongExtension,
-						IsExtension = true
-					};
-				}
-				else
-				{
-					mid.AddVerticalJigsaws(_name, FloorType.Mid, step);
-				}
-
-				mid.FillEmptySpace(extendHeight: false);
-				mid.DebugPrint();
-				mid.SaveNbt(fileName);
-
-				yield return new FloorSectionInfo
-				{
-					Name = fileName,
-					Source = _name,
-					FloorType = FloorType.Mid,
-					Height = null,
-					ChainStep = step,
-					JigsawTileType = _jigsawTileType,
-					IsExtension = false
-				};
-			}
-		}
-
-		// Generate top sections — one per variant (shared across all heights)
-		for (var t = 0; t < _tops.Length; t++)
-		{
-			var top = _tops[t].Clone();
-			var fileName = $"{_name}-top-{t}";
-
-			if (isLong && splitInfo != null)
-			{
-				var extensionName = $"{fileName}-extension";
-				(top, var extension) = top.SplitLongFloor(splitInfo, extensionName);
-
-				top.AddVerticalJigsaws(_name, FloorType.Top, null);
-
-				extension.FillEmptySpace(extendHeight: true);
-				extension.DebugPrint();
-				extension.SaveNbt(extensionName);
-
-				yield return new FloorSectionInfo
-				{
-					Name = extensionName,
-					Source = _name,
+					Source = source,
 					FloorType = FloorType.Top,
 					Height = null,
 					ChainStep = null,
-					JigsawTileType = JigsawTileType.BuildingLongExtension,
-					IsExtension = true
+					JigsawTileType = _jigsawTileType,
+					IsExtension = false
 				};
 			}
-			else
-			{
-				top.AddVerticalJigsaws(_name, FloorType.Top, null);
-			}
-
-			top.FillEmptySpace(extendHeight: true);
-			top.DebugPrint();
-			top.SaveNbt(fileName);
-
-			yield return new FloorSectionInfo
-			{
-				Name = fileName,
-				Source = _name,
-				FloorType = FloorType.Top,
-				Height = null,
-				ChainStep = null,
-				JigsawTileType = _jigsawTileType,
-				IsExtension = false
-			};
 		}
 	}
 }
