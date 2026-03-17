@@ -4,7 +4,17 @@
       "a": "stone_bricks",
       "b": [
         {
-          "block": "oak_planks"
+          "block": "oak_planks",
+          "c" : [
+            {
+              "block": "bricks",
+              "d": [
+                {
+                  "block": "spruce_planks"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
